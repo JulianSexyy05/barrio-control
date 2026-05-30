@@ -109,3 +109,23 @@ button {
 
 button:hover { opacity: 0.88; transform: translateY(-1px); }
 button:active { transform: translateY(0); }
+button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+}
+/* Modal styles (shared with ProjectModal) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Reutilizamos los estilos del modal para mantener la consistencia visual en toda la aplicación. Estos estilos se aplican tanto al modal de creación de proyectos como a cualquier otro modal que podamos agregar en el futuro. Esto nos permite tener un diseño cohesivo y profesional sin necesidad de duplicar código CSS. */
