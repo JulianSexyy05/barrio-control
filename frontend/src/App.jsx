@@ -1,50 +1,31 @@
-/*function App() {
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import DashboardPage from "./pages/DashboardPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+
+function PrivateRoute({ children }) {
+  const isLoggedIn = localStorage.getItem("kamilo-session");
+  return isLoggedIn ? children : <Navigate to="/login" />;
+}
+
+function App() {
   return (
-    <div style={{
-      minHeight: "100vh",
-      backgroundColor: "#f4f6f9",
-      padding: "40px",
-      fontFamily: "Arial, sans-serif"
-    }}>
-      
-      <h1>Kamilo Atlas</h1>
-
-      <p>
-        Tu centro de conocimiento personal inteligente.
-      </p>
-
-      <button
-        style={{
-          padding: "12px 20px",
-          border: "none",
-          borderRadius: "8px",
-          cursor: "pointer",
-          fontSize: "16px"
-        }}
-      >
-        Crear Proyecto
-      </button>
-
-      <hr style={{ margin: "30px 0" }} />
-
-      <h2>Proyectos recientes</h2>
-
-      <div>
-        <p>📂 Barco Autónomo</p>
-        <p>📂 Ideas de Negocio</p>
-        <p>📂 Programación Java</p>
-      </div>
-
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <DashboardPage />
+            </PrivateRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
-export default App; */
-
-import DashboardPage from "./pages/DashboardPage";
-
-function App() {
-  return <DashboardPage />;
-}
-
-export default App; 
+export default App;
