@@ -5,9 +5,26 @@ const DEFAULT_PROJECTS = [
   { id: 2, name: "Ideas", notas: [], links: [], archivos: [] },
 ];
 
+function normalizeProject(project, index) {
+  return {
+    id: project.id ?? Date.now() + index,
+    name: project.name ?? "Proyecto sin nombre",
+    notas: Array.isArray(project.notas) ? project.notas : [],
+    links: Array.isArray(project.links) ? project.links : [],
+    archivos: Array.isArray(project.archivos) ? project.archivos : [],
+  };
+}
+
 export function getProjects() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  return saved ? JSON.parse(saved) : [...DEFAULT_PROJECTS];
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return [...DEFAULT_PROJECTS];
+
+    const projects = JSON.parse(saved);
+    return Array.isArray(projects) ? projects.map(normalizeProject) : [...DEFAULT_PROJECTS];
+  } catch {
+    return [...DEFAULT_PROJECTS];
+  }
 }
 
 export function saveProjects(projects) {

@@ -28,6 +28,17 @@ export default function DashboardPage() { // El estado de proyectos se inicializ
     setExpandedId(expandedId === id ? null : id);
   };
 
+  const handleDeleteProject = (projectId) => {
+    const project = projects.find((p) => p.id === projectId);
+    if (!project) return;
+
+    const confirmed = window.confirm(`¿Eliminar "${project.name}" y todo su contenido?`);
+    if (!confirmed) return;
+
+    setProjects(projects.filter((p) => p.id !== projectId));
+    if (expandedId === projectId) setExpandedId(null);
+  };
+
   const handleUpdateProject = (updatedProject) => {
     setProjects(projects.map((p) => (p.id === updatedProject.id ? updatedProject : p)));
   };
@@ -53,7 +64,14 @@ export default function DashboardPage() { // El estado de proyectos se inicializ
       <section className="projects-section">
         <h2 className="section-title">Proyectos recientes</h2>
 
-        <div className="projects-list">
+        {projects.length === 0 ? (
+          <div className="projects-empty">
+            <p className="projects-empty-title">Aún no tienes proyectos</p>
+            <p className="projects-empty-text">Crea tu primer espacio para guardar notas, links y archivos.</p>
+            <Button text="+ Crear Proyecto" onClick={() => setModalOpen(true)} />
+          </div>
+        ) : (
+          <div className="projects-list">
           {projects.map((project, index) => (
             <div key={project.id} className={`project-card ${expandedId === project.id ? "expanded" : ""}`}>  
 
@@ -62,11 +80,23 @@ export default function DashboardPage() { // El estado de proyectos se inicializ
                   <span className="project-index">#{String(index + 1).padStart(2, "0")}</span>
                   <p className="project-name">{project.name}</p>
                 </div>
-                <span className={`expand-icon ${expandedId === project.id ? "open" : ""}`}>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </span>
+                <div className="project-card-actions">
+                  <button
+                    className="project-delete-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteProject(project.id);
+                    }}
+                    title="Eliminar proyecto"
+                  >
+                    Eliminar
+                  </button>
+                  <span className={`expand-icon ${expandedId === project.id ? "open" : ""}`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </span>
+                </div>
               </div>
 
               {expandedId === project.id && (
@@ -77,7 +107,8 @@ export default function DashboardPage() { // El estado de proyectos se inicializ
               
             </div>
           ))}
-        </div>
+          </div>
+        )}
       </section>
 
       {modalOpen && (

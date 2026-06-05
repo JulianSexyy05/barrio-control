@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 export default function ProjectContent({ project, onUpdate }) {
   const [newNote, setNewNote] = useState("");
   const [newLinkTitle, setNewLinkTitle] = useState("");
   const [newLinkUrl, setNewLinkUrl] = useState("");
+  const fileInputRef = useRef(null);
+
+  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 
   const handleAddNote = () => {
     if (!newNote.trim()) return;
@@ -39,6 +42,58 @@ export default function ProjectContent({ project, onUpdate }) {
       ...project,
       links: project.links.filter((l) => l.id !== linkId),
     });
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    const validFiles = [];
+
+    for (const file of files) {
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`"${file.name}" excede el límite de 2 MB. No se agregó.`);
+        continue;
+      }
+      validFiles.push(file);
+    }
+
+    if (validFiles.length === 0) return;
+
+    Promise.all(
+      validFiles.map((file) => {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () =>
+            resolve({
+              id: Date.now() + Math.random(),
+              name: file.name,
+              size: file.size,
+              type: file.type,
+              data: reader.result,
+            });
+          reader.readAsDataURL(file);
+        });
+      })
+    ).then((newFiles) => {
+      onUpdate({
+        ...project,
+        archivos: [...project.archivos, ...newFiles],
+      });
+    });
+
+    e.target.value = "";
+  };
+
+  const handleDeleteFile = (fileId) => {
+    onUpdate({
+      ...project,
+      archivos: project.archivos.filter((f) => f.id !== fileId),
+    });
+  };
+
+  const formatSize = (bytes) => {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
 
   const handleNoteKeyDown = (e) => {
@@ -128,6 +183,55 @@ export default function ProjectContent({ project, onUpdate }) {
           <button className="content-add-btn" onClick={handleAddLink} disabled={!newLinkTitle.trim() || !newLinkUrl.trim()}>
             +
           </button>
+        </div>
+      </section>
+
+      <section className="content-section">
+        <h4 className="content-section-title">Archivos</h4>
+        <div className="content-list">
+          {project.archivos?.map((file) => (
+            <div key={file.id} className="content-item file-item">
+              <div className="file-info">
+                <span className="file-icon">📄</span>
+                <div className="file-details">
+                  <span className="file-name">{file.name}</span>
+                  <span className="file-size">{formatSize(file.size)}</span>
+                </div>
+              </div>
+              <div className="file-actions">
+                <a
+                  href={file.data}
+                  download={file.name}
+                  className="file-download"
+                  title="Descargar"
+                >
+                  ⬇
+                </a>
+                <button
+                  className="content-item-delete"
+                  onClick={() => handleDeleteFile(file.id)}
+                  title="Eliminar archivo"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          ))}
+          {(!project.archivos || project.archivos.length === 0) && (
+            <p className="content-empty">Aún no hay archivos</p>
+          )}
+        </div>
+        <div className="content-input-row">
+          <button className="content-file-btn" onClick={() => fileInputRef.current?.click()}>
+            + Agregar archivos
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            onChange={handleFileChange}
+            style={{ display: "none" }}
+          />
         </div>
       </section>
     </div>
