@@ -1,29 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
   --bg: #0d0d0f;
   --surface: #16161a;
   --border: #2a2a30;
   --accent: #c8f060;
-  --accent-dim: rgba(200, 240, 96, 0.12);
   --text: #f0f0ee;
   --muted: #6b6b72;
 }
 
-body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; }
-
 .dashboard {
   min-height: 100vh;
   padding: 48px 40px;
-  max-width: 1100px;
+  max-width: 860px;
   margin: 0 auto;
 }
 
+/* ── HEADER ── */
 .dashboard-header {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 56px;
   padding-bottom: 32px;
@@ -32,7 +26,7 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 
 .dashboard-title {
   font-family: 'Syne', sans-serif;
-  font-size: 2.6rem;
+  font-size: 2.4rem;
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--text);
@@ -40,59 +34,283 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 
 .dashboard-subtitle {
   margin-top: 6px;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: var(--muted);
   font-weight: 300;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logout-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.logout-btn:hover {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+  background: transparent;
+  transform: none;
+  opacity: 1;
+}
+
+/* ── SECCIÓN ── */
 .section-title {
   font-family: 'Syne', sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
+/* ── LISTA DE PROYECTOS ── */
+.projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
+/* ── TARJETA ── */
 .project-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 24px 20px;
-  cursor: pointer;
-  transition: border-color 0.2s, transform 0.2s;
+  overflow: hidden;
+  transition: border-color 0.2s;
 }
 
 .project-card:hover {
+  border-color: #3a3a44;
+}
+
+.project-card.expanded {
   border-color: var(--accent);
-  transform: translateY(-2px);
+}
+
+/* ── HEADER DE TARJETA ── */
+.project-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.project-card-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .project-index {
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.1em;
   color: var(--accent);
   font-family: 'Syne', sans-serif;
-  display: block;
-  margin-bottom: 10px;
 }
 
 .project-name {
   font-size: 1rem;
   font-weight: 500;
   color: var(--text);
-  line-height: 1.4;
 }
 
-/* Button override */
+/* ── ÍCONO DE FLECHA ── */
+.expand-icon {
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  transition: transform 0.25s ease, color 0.2s;
+}
+
+.expand-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.expand-icon.open {
+  transform: rotate(180deg);
+  color: var(--accent);
+}
+
+/* ── CUERPO EXPANDIDO ── */
+.project-card-body {
+  padding: 0 24px 24px 24px;
+  border-top: 1px solid var(--border);
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.project-body-placeholder {
+  margin-top: 20px;
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.project-body-placeholder strong {
+  color: var(--text);
+}
+
+/* ── CONTENIDO EXPANDIDO ── */
+.project-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 20px;
+}
+
+.content-section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.content-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.content-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  transition: background 0.15s;
+}
+
+.content-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.content-item-text {
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.content-item-link {
+  font-size: 0.85rem;
+  color: var(--accent);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.content-item-link:hover {
+  opacity: 0.75;
+  text-decoration: underline;
+}
+
+.content-item-delete {
+  background: none !important;
+  border: none !important;
+  color: var(--muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+
+.content-item-delete:hover {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1) !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
+
+.content-empty {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-style: italic;
+  padding: 4px 12px;
+}
+
+.content-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.content-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.8rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.content-input:focus {
+  border-color: var(--accent);
+}
+
+.content-input::placeholder {
+  color: var(--muted);
+}
+
+.content-add-btn {
+  background: var(--accent) !important;
+  color: #0d0d0f !important;
+  border: none !important;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.content-add-btn:hover {
+  opacity: 0.85 !important;
+  transform: translateY(-1px) !important;
+}
+
+.content-add-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* ── BOTÓN PRINCIPAL ── */
 button {
   background: var(--accent);
   color: #0d0d0f;
@@ -104,28 +322,7 @@ button {
   font-size: 0.85rem;
   cursor: pointer;
   transition: opacity 0.2s, transform 0.15s;
-  letter-spacing: 0.01em;
 }
 
 button:hover { opacity: 0.88; transform: translateY(-1px); }
 button:active { transform: translateY(0); }
-button:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-  transform: none;
-}
-/* Modal styles (shared with ProjectModal) */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-/* Reutilizamos los estilos del modal para mantener la consistencia visual en toda la aplicación. Estos estilos se aplican tanto al modal de creación de proyectos como a cualquier otro modal que podamos agregar en el futuro. Esto nos permite tener un diseño cohesivo y profesional sin necesidad de duplicar código CSS. */

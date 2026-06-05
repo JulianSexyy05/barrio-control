@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { loginUser } from "../services/auth";
 import "../styles/auth.css";
 
 export default function LoginPage() {
@@ -26,26 +27,13 @@ export default function LoginPage() {
       return;
     }
 
-    const savedUser = localStorage.getItem("kamilo-user");
+    const result = loginUser({ email: form.email, password: form.password });
 
-    if (!savedUser) {
-      setError("No existe una cuenta registrada. Regístrate primero.");
+    if (!result.success) {
+      setError(result.error);
       return;
     }
 
-    const user = JSON.parse(savedUser);
-
-    if (user.email !== form.email) {
-      setError("El correo no coincide con ninguna cuenta registrada.");
-      return;
-    }
-
-    if (user.password !== form.password) {
-      setError("Contraseña incorrecta.");
-      return;
-    }
-
-    localStorage.setItem("kamilo-session", "true");
     setSuccess(true);
     setTimeout(() => navigate("/dashboard"), 1500);
   };

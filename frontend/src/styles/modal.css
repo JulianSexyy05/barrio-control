@@ -76,5 +76,3 @@
   cursor: not-allowed;
   transform: none;
 }
-
-/* aqui usamos estilos compartidos con el dashboard para los botones, pero con algunas modificaciones para el modal, como el tamaño del texto y el padding, ademas de agregar un estilo para el boton de cancelar que es diferente al boton de confirmar. El boton de cancelar tiene un fondo transparente y un borde, mientras que el boton de confirmar tiene un fondo solido y sin borde. Ambos botones tienen una transicion para el hover y el active, pero el boton de cancelar cambia su color y borde al hacer hover, mientras que el boton de confirmar solo cambia su opacidad. */

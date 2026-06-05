@@ -1,33 +1,41 @@
-// Página de inicio del dashboard donde se muestra el listado de proyectos y el boton para crear nuevos proyectos, al hacer click en el boton se abre un modal para ingresar el nombre del nuevo proyecto, y luego se agrega a la lista de proyectos.
-// ahi impotamos el boton que creamos en el componente y lo usamos en la pagina del dashboard
-
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import ProjectModal from "../components/ProjectModal";
+import ProjectContent from "../components/ProjectContent";
+import { logoutUser } from "../services/auth";
+import { getProjects, saveProjects, createProject } from "../services/projects";
 import "../styles/dashboard.css";
 
-
-export default function DashboardPage() {
-  const [projects, setProjects] = useState(() => {
-    const saved = localStorage.getItem("kamilo-projects");
-    return saved ? JSON.parse(saved) : ["Barco Autónomo", "Ideas"];
-  }); // este estado se encarga de almacenar la lista de proyectos, se inicializa con una funcion que intenta cargar los proyectos guardados en el localStorage, si no hay proyectos guardados se inicializa con una lista de ejemplo con dos proyectos predefinidos. Esto permite que los proyectos creados por el usuario se mantengan incluso después de cerrar o recargar la pagina, mejorando la experiencia del usuario al no perder su trabajo.
-
-
-  const [modalOpen, setModalOpen] = useState(false);
+export default function DashboardPage() { // El estado de proyectos se inicializa con los datos cargados desde localStorage usando getProjects()
+  const [projects, setProjects] = useState(() => getProjects()); // Cargar proyectos desde localStorage al iniciar el componente
+  const [modalOpen, setModalOpen] = useState(false); // Para controlar la visibilidad del modal de creación de proyectos
+  const [expandedId, setExpandedId] = useState(null); // Para controlar qué proyecto está expandido en la lista
+  const navigate = useNavigate(); // Para redirigir al login después de cerrar sesión
 
   useEffect(() => {
-    localStorage.setItem("kamilo-projects", JSON.stringify(projects));
-  }, [projects]); // este efecto se ejecuta cada vez que el estado de proyectos cambia, guarda la lista actualizada de proyectos en el localStorage para que se mantenga persistente entre sesiones. Esto asegura que los proyectos creados por el usuario no se pierdan al cerrar o recargar la pagina, mejorando la experiencia del usuario al mantener su trabajo guardado.
-
-
+    saveProjects(projects);
+  }, [projects]);
 
   const handleCreateProject = (name) => {
     if (name.trim()) {
-      setProjects([...projects, name.trim()]);
+      setProjects([...projects, createProject(name)]); // Crear un nuevo proyecto usando la función createProject y agregarlo al estado de proyectos
     }
     setModalOpen(false);
-  }; // esta funcion se encarga de crear un nuevo proyecto, recibe el nombre del proyecto como parametro, verifica que no este vacio o solo con espacios, si es valido agrega el nuevo proyecto a la lista de proyectos usando el estado, y luego cierra el modal. Esto permite al usuario agregar nuevos proyectos a su dashboard de manera sencilla y rapida, mejorando la experiencia del usuario al facilitar la gestion de sus proyectos.
+  };
+
+  const toggleExpand = (id) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
+
+  const handleUpdateProject = (updatedProject) => {
+    setProjects(projects.map((p) => (p.id === updatedProject.id ? updatedProject : p)));
+  };
+
+  const handleLogout = () => {
+    logoutUser(); // Elimina el token de autenticación y cualquier otro dato relacionado con la sesión
+    navigate("/login"); //Redirige al usuario a la página de login después de cerrar sesión
+  };
 
   return (
     <div className="dashboard">
@@ -36,16 +44,37 @@ export default function DashboardPage() {
           <h1 className="dashboard-title">Kamilo Atlas</h1>
           <p className="dashboard-subtitle">Tu centro de conocimiento personal inteligente.</p>
         </div>
-        <Button text="+ Crear Proyecto" onClick={() => setModalOpen(true)} />
+        <div className="header-actions">
+          <Button text="+ Crear Proyecto" onClick={() => setModalOpen(true)} />
+          <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+        </div>
       </header>
 
       <section className="projects-section">
         <h2 className="section-title">Proyectos recientes</h2>
-        <div className="projects-grid">
+
+        <div className="projects-list">
           {projects.map((project, index) => (
-            <div key={index} className="project-card">
-              <span className="project-index">#{String(index + 1).padStart(2, "0")}</span>
-              <p className="project-name">{project}</p>
+            <div key={project.id} className={`project-card ${expandedId === project.id ? "expanded" : ""}`}>  
+
+              <div className="project-card-header" onClick={() => toggleExpand(project.id)}>
+                <div className="project-card-left">
+                  <span className="project-index">#{String(index + 1).padStart(2, "0")}</span>
+                  <p className="project-name">{project.name}</p>
+                </div>
+                <span className={`expand-icon ${expandedId === project.id ? "open" : ""}`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </span>
+              </div>
+
+              {expandedId === project.id && (
+                <div className="project-card-body">
+                  <ProjectContent project={project} onUpdate={handleUpdateProject} />
+                </div>
+              )}
+              
             </div>
           ))}
         </div>
@@ -55,10 +84,8 @@ export default function DashboardPage() {
         <ProjectModal
           onConfirm={handleCreateProject}
           onCancel={() => setModalOpen(false)}
-        /> // si el estado modalOpen es true, se renderiza el componente ProjectModal, se le pasan dos props: onConfirm que es la funcion handleCreateProject para manejar la creacion de un nuevo proyecto, y onCancel que es una funcion que simplemente cierra el modal al establecer modalOpen en false. Esto permite mostrar el modal de creacion de proyecto cuando el usuario hace click en el boton, y manejar la creacion o cancelacion del nuevo proyecto de manera eficiente, mejorando la experiencia del usuario al facilitar la gestion de sus proyectos.
+        />
       )}
     </div>
   );
-} 
-
-
+}

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { registerUser } from "../services/auth";
 import "../styles/auth.css";
 
 export default function RegisterPage() {
@@ -42,8 +43,7 @@ export default function RegisterPage() {
       return;
     }
 
-    localStorage.setItem("kamilo-user", JSON.stringify({ name: form.name, email: form.email, password: form.password }));
-    localStorage.setItem("kamilo-session", "true");
+    registerUser({ name: form.name, email: form.email, password: form.password });
     setSuccess(true);
     setTimeout(() => navigate("/dashboard"), 1500);
   };
