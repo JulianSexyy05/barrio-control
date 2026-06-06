@@ -14,7 +14,7 @@ export default function DashboardPage() { // El estado de proyectos se inicializ
   const navigate = useNavigate(); // Para redirigir al login después de cerrar sesión
 
   useEffect(() => {
-    saveProjects(projects);
+    saveProjects(projects); // Guardar proyectos en localStorage cada vez que cambie el estado de proyectos para persistir los datos entre sesiones
   }, [projects]);
 
   const handleCreateProject = (name) => {
@@ -25,22 +25,22 @@ export default function DashboardPage() { // El estado de proyectos se inicializ
   };
 
   const toggleExpand = (id) => {
-    setExpandedId(expandedId === id ? null : id);
+    setExpandedId(expandedId === id ? null : id); // estas dos lineas se encargan de expandir o colapsar el contenido del proyecto al hacer clic en su encabezado. Si el proyecto ya está expandido (expandedId === id), se colapsa estableciendo expandedId a null. Si no está expandido, se establece expandedId al id del proyecto para mostrar su contenido.
   };
 
   const handleDeleteProject = (projectId) => {
     const project = projects.find((p) => p.id === projectId);
-    if (!project) return;
+    if (!project) return; /// Si no se encuentra el proyecto, no hacer nada
 
     const confirmed = window.confirm(`¿Eliminar "${project.name}" y todo su contenido?`);
     if (!confirmed) return;
 
     setProjects(projects.filter((p) => p.id !== projectId));
-    if (expandedId === projectId) setExpandedId(null);
+    if (expandedId === projectId) setExpandedId(null);  // Si el proyecto eliminado estaba expandido, colapsar su contenido estableciendo expandedId a null
   };
 
   const handleUpdateProject = (updatedProject) => {
-    setProjects(projects.map((p) => (p.id === updatedProject.id ? updatedProject : p)));
+    setProjects(projects.map((p) => (p.id === updatedProject.id ? updatedProject : p))); // Actualizar el proyecto en el estado de proyectos reemplazando el proyecto con el mismo id por el proyecto actualizado
   };
 
   const handleLogout = () => {
@@ -72,41 +72,41 @@ export default function DashboardPage() { // El estado de proyectos se inicializ
           </div>
         ) : (
           <div className="projects-list">
-          {projects.map((project, index) => (
-            <div key={project.id} className={`project-card ${expandedId === project.id ? "expanded" : ""}`}>  
+            {projects.map((project, index) => (
+              <div key={project.id} className={`project-card ${expandedId === project.id ? "expanded" : ""}`}>
 
-              <div className="project-card-header" onClick={() => toggleExpand(project.id)}>
-                <div className="project-card-left">
-                  <span className="project-index">#{String(index + 1).padStart(2, "0")}</span>
-                  <p className="project-name">{project.name}</p>
+                <div className="project-card-header" onClick={() => toggleExpand(project.id)}>
+                  <div className="project-card-left">
+                    <span className="project-index">#{String(index + 1).padStart(2, "0")}</span>
+                    <p className="project-name">{project.name}</p>
+                  </div> 
+                  <div className="project-card-actions">
+                    <button
+                      className="project-delete-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteProject(project.id);
+                      }}
+                      title="Eliminar proyecto"
+                    >
+                      Eliminar
+                    </button>
+                    <span className={`expand-icon ${expandedId === project.id ? "open" : ""}`}>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
+                  </div>
                 </div>
-                <div className="project-card-actions">
-                  <button
-                    className="project-delete-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteProject(project.id);
-                    }}
-                    title="Eliminar proyecto"
-                  >
-                    Eliminar
-                  </button>
-                  <span className={`expand-icon ${expandedId === project.id ? "open" : ""}`}>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </span>
-                </div>
+
+                {expandedId === project.id && (
+                  <div className="project-card-body">
+                    <ProjectContent project={project} onUpdate={handleUpdateProject} />
+                  </div>
+                )}
+
               </div>
-
-              {expandedId === project.id && (
-                <div className="project-card-body">
-                  <ProjectContent project={project} onUpdate={handleUpdateProject} />
-                </div>
-              )}
-              
-            </div>
-          ))}
+            ))}
           </div>
         )}
       </section>

@@ -3,20 +3,20 @@ import "../styles/modal.css";
 
 export default function ProjectModal({ onConfirm, onCancel }) {
   const [value, setValue] = useState("");
-  const inputRef = useRef(null);
+  const inputRef = useRef(null); // Referencia al campo de entrada para enfocar automáticamente
 
   useEffect(() => {
-    inputRef.current?.focus();
+    inputRef.current?.focus(); // Enfoca el campo de entrada cuando el modal se monta
   }, []);
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") onConfirm(value);
-    if (e.key === "Escape") onCancel();
+    if (e.key === "Escape") onCancel(); // Permite cerrar el modal con la tecla Escape
   };
 
   return (
-    <div className="modal-overlay" onClick={onCancel}>
-      <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay" onClick={onCancel}> 
+      <div className="modal-box" onClick={(e) => e.stopPropagation()}> 
         <h3 className="modal-title">Nuevo proyecto</h3>
         <p className="modal-hint">Dale un nombre a tu proyecto</p>
         <input

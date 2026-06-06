@@ -9,25 +9,27 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
+// las 7 anteriores variables se encargaron de manejar el estado del formulario de inicio de sesión, incluyendo los valores de los campos, mensajes de error, visibilidad de la contraseña y estado de éxito para mostrar un mensaje de bienvenida al usuario después de un inicio de sesión exitoso.
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setError("");
-  };
+    setForm({ ...form, [e.target.name]: e.target.value }); // Actualiza el estado del formulario con el nuevo valor del campo que se está editando. El operador spread (...) se utiliza para mantener los valores actuales de los otros campos del formulario sin modificarlos.
 
-  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    setError(""); // Limpiar el mensaje de error cada vez que el usuario modifica un campo del formulario para evitar mostrar errores obsoletos mientras el usuario corrige su entrada.
+  }; 
+
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); // Expresión regular simple para validar el formato del correo electrónico. Verifica que el correo tenga un formato básico con texto antes y después del símbolo "@" y un dominio válido.
 
   const handleSubmit = () => {
     if (!form.email || !form.password) {
       setError("Completa todos los campos.");
-      return;
+      return; // Si alguno de los campos está vacío, se establece un mensaje de error y se detiene la ejecución de la función para evitar intentar iniciar sesión con datos incompletos.
     }
-    if (!validateEmail(form.email)) {
+    if (!validateEmail(form.email)) { // Si el formato del correo electrónico no es válido, se establece un mensaje de error específico para informar al usuario sobre el problema con su entrada.
       setError("El correo no tiene un formato válido.");
       return;
     }
 
-    const result = loginUser({ email: form.email, password: form.password });
+    const result = loginUser({ email: form.email, password: form.password }); //  Intenta iniciar sesión utilizando la función loginUser, que se espera que maneje la autenticación del usuario y devuelva un resultado indicando si el inicio de sesión fue exitoso o si hubo un error (como credenciales incorrectas).
 
     if (!result.success) {
       setError(result.error);

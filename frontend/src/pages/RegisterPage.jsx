@@ -134,19 +134,19 @@ export default function RegisterPage() {
                   className={`field-input ${errors.confirm ? "input-error" : ""}`}
                   type={showConfirm ? "text" : "password"}
                   name="confirm"
-                  placeholder="••••••••"
-                  value={form.confirm}
-                  onChange={handleChange}
+                  placeholder="••••••••" // El campo de confirmación de contraseña tiene el mismo formato que el campo de contraseña principal, pero su función es permitir al usuario ingresar nuevamente su contraseña para verificar que la ha escrito correctamente antes de crear la cuenta.
+                  value={form.confirm} // El valor del campo de confirmación de contraseña se vincula al estado del formulario para que pueda ser validado en tiempo real y comparado con el campo de contraseña principal para asegurar que ambos coincidan antes de permitir la creación de la cuenta.
+                  onChange={handleChange} // Utiliza la misma función handleChange para actualizar el estado del formulario con el valor de confirmación de contraseña, lo que permite validar que ambas contraseñas coincidan antes de permitir la creación de la cuenta.
                 />
                 <button
                   className="eye-btn"
-                  onClick={() => setShowConfirm(!showConfirm)}
-                  tabIndex={-1}
+                  onClick={() => setShowConfirm(!showConfirm)} // Permite alternar la visibilidad de la confirmación de contraseña para que el usuario pueda verificar que ha ingresado la misma contraseña en ambos campos.
+                  tabIndex={-1} // Evita que el botón de mostrar/ocultar contraseña sea enfocado al navegar con el teclado, ya que su función es meramente visual y no interactiva en términos de formulario.
                 >
                   {showConfirm ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 4.411m0 0L21 21" />
-                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"> // Icono de ojo abierto para mostrar la confirmación de contraseña
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 4.411m0 0L21 21" /> // Icono de ojo abierto para mostrar la confirmación de contraseña
+                    </svg> // Icono de ojo abierto para mostrar la contraseña
                   ) : (
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
