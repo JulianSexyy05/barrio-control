@@ -1,12 +1,12 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-export async function askProjectAi(projectId, question, context) {
+export async function askProjectAi(projectId, question, context, history = []) {
   const response = await fetch(`${API_URL}/api/projects/${projectId}/chat`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ question, context }),
+    body: JSON.stringify({ question, context, history }),
   });
 
   const data = await response.json();

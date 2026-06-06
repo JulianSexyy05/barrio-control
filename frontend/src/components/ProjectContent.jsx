@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { askProjectAi } from "../services/aiChat";
 
 export default function ProjectContent({ project, onUpdate }) {
@@ -6,12 +6,38 @@ export default function ProjectContent({ project, onUpdate }) {
   const [newLinkTitle, setNewLinkTitle] = useState("");
   const [newLinkUrl, setNewLinkUrl] = useState("");
   const [aiQuestion, setAiQuestion] = useState("");
-  const [aiAnswer, setAiAnswer] = useState("");
+  const [messages, setMessages] = useState([]);
   const [aiError, setAiError] = useState("");
   const [isAskingAi, setIsAskingAi] = useState(false);
   const fileInputRef = useRef(null);
+  const chatWindowRef = useRef(null);
+
+  const CHAT_STORAGE_KEY = `chat-${project.id}`;
 
   const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
+
+  useEffect(() => {
+    const saved = localStorage.getItem(CHAT_STORAGE_KEY);
+    if (saved) {
+      try {
+        setMessages(JSON.parse(saved));
+      } catch {
+        setMessages([]);
+      }
+    }
+  }, [CHAT_STORAGE_KEY]);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+    }
+  }, [messages, CHAT_STORAGE_KEY]);
+
+  useEffect(() => {
+    if (chatWindowRef.current) {
+      chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const handleAddNote = () => {
     if (!newNote.trim()) return;
@@ -113,8 +139,12 @@ export default function ProjectContent({ project, onUpdate }) {
     setAiError("");
 
     try {
-      const data = await askProjectAi(project.id, question, project);
-      setAiAnswer(data.answer);
+      const data = await askProjectAi(project.id, question, project, messages);
+      setMessages((prev) => [
+        ...prev,
+        { role: "user", content: question },
+        { role: "assistant", content: data.answer },
+      ]);
       setAiQuestion("");
     } catch (error) {
       setAiError(error.message);
@@ -266,12 +296,15 @@ export default function ProjectContent({ project, onUpdate }) {
       </section>
 
       <section className="ai-chat-preview">
-        <div className="ai-chat-window">
-          {aiAnswer ? (
-            <div className="ai-message ai-message-assistant">
-              {aiAnswer}
+        <div className="ai-chat-window" ref={chatWindowRef}>
+          {messages.length === 0 && (
+            <p className="ai-chat-empty">Haz una pregunta sobre tu proyecto...</p>
+          )}
+          {messages.map((msg, i) => (
+            <div key={i} className={`ai-message ai-message-${msg.role}`}>
+              {msg.content}
             </div>
-          ) : null}
+          ))}
         </div>
 
         {aiError && <p className="ai-chat-error">{aiError}</p>}

@@ -27,9 +27,15 @@ function formatProjectContext(context = {}) {
   };
 }
 
-export async function generateProjectAnswer({ question, context }) {
+export async function generateProjectAnswer({ question, context, history = [] }) {
   const groq = await getGroqClient();
   const projectContext = formatProjectContext(context);
+
+  const safeHistory = Array.isArray(history)
+    ? history.filter(
+        (msg) => msg && (msg.role === "user" || msg.role === "assistant") && msg.content
+      )
+    : [];
 
   const completion = await groq.chat.completions.create({
     model: MODEL,
@@ -38,8 +44,9 @@ export async function generateProjectAnswer({ question, context }) {
       {
         role: "system",
         content:
-          "Eres el asistente de Kamilo Atlas. Responde en español, con claridad y usando solo el contexto del proyecto cuando sea posible. Si falta información, dilo sin inventar.",
+          "Eres el asistente de Kamilo Atlas. Responde en español, con claridad y usando solo el contexto del proyecto cuando sea posible. Si falta información, dilo sin inventar. Recuerda las preguntas y respuestas anteriores de la conversación para mantener coherencia.",
       },
+      ...safeHistory,
       {
         role: "user",
         content: JSON.stringify({

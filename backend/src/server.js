@@ -25,7 +25,7 @@ app.get("/api/health", (req, res) => {
 
 app.post("/api/projects/:projectId/chat", async (req, res) => {
   const { projectId } = req.params;
-  const { question, context } = req.body ?? {};
+  const { question, context, history } = req.body ?? {};
 
   if (!question || typeof question !== "string" || !question.trim()) {
     return res.status(400).json({
@@ -38,6 +38,7 @@ app.post("/api/projects/:projectId/chat", async (req, res) => {
     const answer = await generateProjectAnswer({
       question: question.trim(),
       context,
+      history,
     });
 
     res.json({

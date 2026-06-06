@@ -286,10 +286,12 @@
   flex-direction: column;
   gap: 10px;
   min-height: 142px;
+  max-height: 300px;
   padding: 16px;
   border: 1px solid var(--border);
   border-radius: 14px;
   background: rgba(13, 13, 15, 0.72);
+  overflow-y: auto;
 }
 
 .ai-message {
@@ -364,6 +366,13 @@
   color: #ff8a8a;
   font-size: 0.8rem;
   line-height: 1.4;
+}
+
+.ai-chat-empty {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.82rem;
+  padding: 20px 0;
 }
 
 /* ── CONTENIDO EXPANDIDO ── */
