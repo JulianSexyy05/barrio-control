@@ -1,9 +1,14 @@
 import { useState, useRef } from "react";
+import { askProjectAi } from "../services/aiChat";
 
 export default function ProjectContent({ project, onUpdate }) {
   const [newNote, setNewNote] = useState("");
   const [newLinkTitle, setNewLinkTitle] = useState("");
   const [newLinkUrl, setNewLinkUrl] = useState("");
+  const [aiQuestion, setAiQuestion] = useState("");
+  const [aiAnswer, setAiAnswer] = useState("");
+  const [aiError, setAiError] = useState("");
+  const [isAskingAi, setIsAskingAi] = useState(false);
   const fileInputRef = useRef(null);
 
   const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
@@ -98,6 +103,31 @@ export default function ProjectContent({ project, onUpdate }) {
 
   const handleNoteKeyDown = (e) => {
     if (e.key === "Enter") handleAddNote();
+  };
+
+  const handleAskAi = async () => {
+    const question = aiQuestion.trim();
+    if (!question || isAskingAi) return;
+
+    setIsAskingAi(true);
+    setAiError("");
+
+    try {
+      const data = await askProjectAi(project.id, question, project);
+      setAiAnswer(data.answer);
+      setAiQuestion("");
+    } catch (error) {
+      setAiError(error.message);
+    } finally {
+      setIsAskingAi(false);
+    }
+  };
+
+  const handleAiKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleAskAi();
+    }
   };
 
   return (
@@ -232,6 +262,37 @@ export default function ProjectContent({ project, onUpdate }) {
             onChange={handleFileChange}
             style={{ display: "none" }}
           />
+        </div>
+      </section>
+
+      <section className="ai-chat-preview">
+        <div className="ai-chat-window">
+          {aiAnswer ? (
+            <div className="ai-message ai-message-assistant">
+              {aiAnswer}
+            </div>
+          ) : null}
+        </div>
+
+        {aiError && <p className="ai-chat-error">{aiError}</p>}
+
+        <div className="ai-chat-input-row">
+          <textarea
+            className="ai-chat-input"
+            placeholder="Pregunta sobre este proyecto..."
+            rows="2"
+            value={aiQuestion}
+            onChange={(e) => setAiQuestion(e.target.value)}
+            onKeyDown={handleAiKeyDown}
+          />
+          <button
+            className="ai-chat-send"
+            type="button"
+            onClick={handleAskAi}
+            disabled={!aiQuestion.trim() || isAskingAi}
+          >
+            {isAskingAi ? "Preguntando..." : "Preguntar"}
+          </button>
         </div>
       </section>
     </div>

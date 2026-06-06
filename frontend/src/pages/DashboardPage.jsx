@@ -85,7 +85,7 @@ export default function DashboardPage() { // El estado de proyectos se inicializ
                       className="project-delete-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDeleteProject(project.id);
+                        handleDeleteProject(project.id); // Evita que el clic en el botón de eliminar también dispare la función toggleExpand al hacer clic en el encabezado del proyecto
                       }}
                       title="Eliminar proyecto"
                     >
