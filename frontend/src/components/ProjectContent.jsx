@@ -43,7 +43,7 @@ export default function ProjectContent({ project, onUpdate }) {
     if (!newNote.trim()) return;
     onUpdate({
       ...project,
-      notas: [...project.notas, { id: Date.now(), text: newNote.trim() }],
+      notas: [...project.notas, { id: crypto.randomUUID(), text: newNote.trim() }],
     });
     setNewNote("");
   };
@@ -61,7 +61,7 @@ export default function ProjectContent({ project, onUpdate }) {
       ...project,
       links: [
         ...project.links,
-        { id: Date.now(), title: newLinkTitle.trim(), url: newLinkUrl.trim() },
+        { id: crypto.randomUUID(), title: newLinkTitle.trim(), url: newLinkUrl.trim() },
       ],
     });
     setNewLinkTitle("");
@@ -95,7 +95,7 @@ export default function ProjectContent({ project, onUpdate }) {
           const reader = new FileReader();
           reader.onload = () =>
             resolve({
-              id: Date.now() + Math.random(),
+              id: crypto.randomUUID(),
               name: file.name,
               size: file.size,
               type: file.type,
@@ -158,6 +158,12 @@ export default function ProjectContent({ project, onUpdate }) {
       e.preventDefault();
       handleAskAi();
     }
+  };
+
+  const handleClearChat = () => {
+    setMessages([]);
+    localStorage.removeItem(CHAT_STORAGE_KEY);
+    setAiError("");
   };
 
   return (
@@ -308,6 +314,12 @@ export default function ProjectContent({ project, onUpdate }) {
         </div>
 
         {aiError && <p className="ai-chat-error">{aiError}</p>}
+
+        {messages.length > 0 && (
+          <button className="ai-chat-clear" onClick={handleClearChat}>
+            Limpiar conversación
+          </button>
+        )}
 
         <div className="ai-chat-input-row">
           <textarea

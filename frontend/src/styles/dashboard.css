@@ -375,6 +375,25 @@
   padding: 20px 0;
 }
 
+.ai-chat-clear {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: var(--muted) !important;
+  font-size: 0.72rem;
+  padding: 6px 14px;
+  margin-top: 10px;
+  cursor: pointer;
+  border-radius: 8px;
+  width: 100%;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.ai-chat-clear:hover {
+  border-color: rgba(255, 107, 107, 0.4) !important;
+  color: #ff6b6b !important;
+  background: rgba(255, 107, 107, 0.06) !important;
+}
+
 /* ── CONTENIDO EXPANDIDO ── */
 .project-content {
   display: flex;

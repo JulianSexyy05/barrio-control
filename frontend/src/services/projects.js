@@ -33,7 +33,7 @@ export function saveProjects(projects) {
 
 export function createProject(name) {
   return {
-    id: Date.now(),
+    id: crypto.randomUUID(),
     name: name.trim(),
     notas: [],
     links: [],
