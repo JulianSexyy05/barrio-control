@@ -49,7 +49,6 @@ export default function DashboardPage() { // El estado de proyectos se inicializ
     await logoutUser();
     navigate("/login");
   };
-  };
 
   return (
     <div className="dashboard">
