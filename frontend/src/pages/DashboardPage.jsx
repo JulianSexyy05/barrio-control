@@ -45,9 +45,10 @@ export default function DashboardPage() { // El estado de proyectos se inicializ
     setProjects(projects.map((p) => (p.id === updatedProject.id ? updatedProject : p))); // Actualizar el proyecto en el estado de proyectos reemplazando el proyecto con el mismo id por el proyecto actualizado
   };
 
-  const handleLogout = () => {
-    logoutUser(); // Elimina el token de autenticación y cualquier otro dato relacionado con la sesión
-    navigate("/login"); //Redirige al usuario a la página de login después de cerrar sesión
+  const handleLogout = async () => {
+    await logoutUser();
+    navigate("/login");
+  };
   };
 
   return (

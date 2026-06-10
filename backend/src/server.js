@@ -1,6 +1,7 @@
 import express from "express";
 import "dotenv/config";
 import { generateProjectAnswer } from "./services/aiService.js";
+import { verifyFirebaseToken, isFirebaseReady } from "./services/firebaseAdmin.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -19,11 +20,30 @@ app.use((req, res, next) => {
   next();
 });
 
+async function authMiddleware(req, res, next) {
+  if (!isFirebaseReady()) return next();
+
+  const header = req.headers.authorization;
+  if (!header || !header.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "UNAUTHORIZED", message: "Token requerido." });
+  }
+
+  const token = header.split(" ")[1];
+  const decoded = await verifyFirebaseToken(token);
+
+  if (!decoded) {
+    return res.status(401).json({ error: "UNAUTHORIZED", message: "Token inválido o expirado." });
+  }
+
+  req.user = decoded;
+  next();
+}
+
 app.get("/api/health", (req, res) => {
   res.json({ ok: true, service: "kamilo-atlas-backend" });
 });
 
-app.post("/api/projects/:projectId/chat", async (req, res) => {
+app.post("/api/projects/:projectId/chat", authMiddleware, async (req, res) => {
   const { projectId } = req.params;
   const { question, context, history } = req.body ?? {};
 
