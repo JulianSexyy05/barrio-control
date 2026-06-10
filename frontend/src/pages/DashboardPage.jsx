@@ -38,6 +38,8 @@ export default function DashboardPage() { // El estado de proyectos se inicializ
     setProjects(projects.filter((p) => p.id !== projectId));
     if (expandedId === projectId) setExpandedId(null);  // Si el proyecto eliminado estaba expandido, colapsar su contenido estableciendo expandedId a null
   };
+   
+  
 
   const handleUpdateProject = (updatedProject) => {
     setProjects(projects.map((p) => (p.id === updatedProject.id ? updatedProject : p))); // Actualizar el proyecto en el estado de proyectos reemplazando el proyecto con el mismo id por el proyecto actualizado

@@ -19,25 +19,29 @@ export default function LoginPage() {
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); // Expresión regular simple para validar el formato del correo electrónico. Verifica que el correo tenga un formato básico con texto antes y después del símbolo "@" y un dominio válido.
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.email || !form.password) {
       setError("Completa todos los campos.");
-      return; // Si alguno de los campos está vacío, se establece un mensaje de error y se detiene la ejecución de la función para evitar intentar iniciar sesión con datos incompletos.
+      return;
     }
-    if (!validateEmail(form.email)) { // Si el formato del correo electrónico no es válido, se establece un mensaje de error específico para informar al usuario sobre el problema con su entrada.
+    if (!validateEmail(form.email)) {
       setError("El correo no tiene un formato válido.");
       return;
     }
 
-    const result = loginUser({ email: form.email, password: form.password }); //  Intenta iniciar sesión utilizando la función loginUser, que se espera que maneje la autenticación del usuario y devuelva un resultado indicando si el inicio de sesión fue exitoso o si hubo un error (como credenciales incorrectas).
+    try {
+      const result = await loginUser({ email: form.email, password: form.password });
 
-    if (!result.success) {
-      setError(result.error);
-      return;
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+
+      setSuccess(true);
+      setTimeout(() => navigate("/dashboard"), 1500);
+    } catch {
+      setError("Ocurrió un error al iniciar sesión.");
     }
-
-    setSuccess(true);
-    setTimeout(() => navigate("/dashboard"), 1500);
   };
 
   return (

@@ -28,7 +28,7 @@ export default function RegisterPage() {
 
   const strength = getPasswordStrength(form.password);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const newErrors = {};
 
     if (!form.name.trim()) newErrors.name = "El nombre es requerido.";
@@ -43,7 +43,7 @@ export default function RegisterPage() {
       return;
     }
 
-    registerUser({ name: form.name, email: form.email, password: form.password });
+    await registerUser({ name: form.name, email: form.email, password: form.password });
     setSuccess(true);
     setTimeout(() => navigate("/dashboard"), 1500);
   };

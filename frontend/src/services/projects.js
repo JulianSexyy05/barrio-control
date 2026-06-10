@@ -12,7 +12,7 @@ function normalizeProject(project, index) {
     notas: Array.isArray(project.notas) ? project.notas : [],
     links: Array.isArray(project.links) ? project.links : [],
     archivos: Array.isArray(project.archivos) ? project.archivos : [],
-  };
+  }; // estas lineas se encargan de asegurar que cada proyecto tenga una estructura consistente, asignando valores predeterminados en caso de que falten propiedades o tengan formatos incorrectos. Esto ayuda a prevenir errores al manipular los proyectos en la aplicación.
 }
 
 export function getProjects() {
