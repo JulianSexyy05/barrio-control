@@ -1,10 +1,5 @@
 const STORAGE_KEY = "kamilo-projects";
 
-const DEFAULT_PROJECTS = [
-  { id: 1, name: "Barco Autónomo", notas: [], links: [], archivos: [] },
-  { id: 2, name: "Ideas", notas: [], links: [], archivos: [] },
-];
-
 function normalizeProject(project, index) {
   return {
     id: project.id ?? Date.now() + index,
@@ -18,12 +13,12 @@ function normalizeProject(project, index) {
 export function getProjects() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return [...DEFAULT_PROJECTS];
+    if (!saved) return [];
 
     const projects = JSON.parse(saved);
-    return Array.isArray(projects) ? projects.map(normalizeProject) : [...DEFAULT_PROJECTS];
+    return Array.isArray(projects) ? projects.map(normalizeProject) : [];
   } catch {
-    return [...DEFAULT_PROJECTS];
+    return [];
   }
 }
 
