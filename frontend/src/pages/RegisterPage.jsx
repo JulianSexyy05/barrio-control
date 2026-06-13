@@ -23,7 +23,7 @@ export default function RegisterPage() {
     if (password.length < 6) return { label: "Muy débil", color: "#ff6b6b", width: "25%" };
     if (password.length < 8) return { label: "Débil", color: "#ffa94d", width: "50%" };
     if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) return { label: "Regular", color: "#ffd43b", width: "75%" };
-    return { label: "Fuerte", color: "#c8f060", width: "100%" };
+    return { label: "Fuerte", color: "#00e5ff", width: "100%" };
   };
 
   const strength = getPasswordStrength(form.password);

@@ -3,15 +3,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #0d0d0f;
+  background: var(--bg);
   padding: 24px;
 }
 
 .auth-box {
   width: 100%;
   max-width: 420px;
-  background: #16161a;
-  border: 1px solid #2a2a30;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 40px 36px;
 }
@@ -25,14 +25,14 @@
   font-family: 'Syne', sans-serif;
   font-size: 2rem;
   font-weight: 800;
-  color: #c8f060;
+  color: var(--accent);
   letter-spacing: -0.03em;
   margin-bottom: 8px;
 }
 
 .auth-subtitle {
   font-size: 0.9rem;
-  color: #6b6b72;
+  color: var(--muted);
   font-family: 'DM Sans', sans-serif;
 }
 
@@ -51,27 +51,27 @@
 .field-label {
   font-size: 0.78rem;
   font-weight: 600;
-  color: #a0a0a8;
+  color: var(--muted);
   font-family: 'Syne', sans-serif;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .field-input {
-  background: #0d0d0f;
-  border: 1px solid #2a2a30;
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 12px 16px;
   font-size: 0.95rem;
   font-family: 'DM Sans', sans-serif;
-  color: #f0f0ee;
+  color: var(--text);
   outline: none;
   transition: border-color 0.2s;
   width: 100%;
 }
 
-.field-input:focus { border-color: #c8f060; }
-.field-input::placeholder { color: #3a3a42; }
+.field-input:focus { border-color: var(--accent); }
+.field-input::placeholder { color: var(--muted); }
 
 .input-wrapper {
   position: relative;
@@ -92,12 +92,12 @@
   padding: 0;
   display: flex;
   align-items: center;
-  color: #6b6b72;
+  color: var(--muted);
   transition: color 0.2s;
 }
 
 .eye-btn:hover {
-  color: #f0f0ee;
+  color: var(--text);
   background: transparent;
   transform: none;
   opacity: 1;
@@ -108,17 +108,17 @@
   height: 18px;
 }
 
-.input-error { border-color: #ff6b6b !important; }
+.input-error { border-color: var(--error) !important; }
 
 .field-error {
   font-size: 0.78rem;
-  color: #ff6b6b;
+  color: var(--error);
   font-family: 'DM Sans', sans-serif;
 }
 
 .auth-error {
   font-size: 0.85rem;
-  color: #ff6b6b;
+  color: var(--error);
   font-family: 'DM Sans', sans-serif;
   text-align: center;
 }
@@ -145,8 +145,8 @@
 .auth-btn {
   width: 100%;
   padding: 13px;
-  background: #c8f060;
-  color: #0d0d0f;
+  background: var(--accent);
+  color: var(--bg);
   border: none;
   border-radius: 8px;
   font-family: 'Syne', sans-serif;
@@ -170,7 +170,7 @@
   align-items: center;
   gap: 12px;
   margin: 18px 0;
-  color: var(--muted, #6b6b72);
+  color: var(--muted);
   font-size: 0.78rem;
 }
 
@@ -179,7 +179,7 @@
   content: "";
   flex: 1;
   height: 1px;
-  background: var(--border, #2a2a30);
+  background: var(--border);
 }
 
 .auth-google-btn {
@@ -190,9 +190,9 @@
   gap: 10px;
   padding: 12px;
   background: transparent;
-  border: 1px solid var(--border, #2a2a30);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  color: var(--text, #f0f0ee);
+  color: var(--text);
   font-family: 'DM Sans', sans-serif;
   font-size: 0.88rem;
   font-weight: 500;
@@ -201,8 +201,8 @@
 }
 
 .auth-google-btn:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(var(--accent-rgb), 0.3);
+  background: rgba(var(--accent-rgb), 0.04);
 }
 
 .auth-google-btn:disabled {
@@ -214,25 +214,25 @@
   display: block;
   text-align: right;
   font-size: 0.8rem;
-  color: var(--muted, #6b6b72);
+  color: var(--muted);
   text-decoration: none;
   margin: 4px 0 14px 0;
 }
 
 .auth-forgot:hover {
-  color: var(--accent, #c8f060);
+  color: var(--accent);
 }
 
 .auth-link {
   text-align: center;
   margin-top: 28px;
   font-size: 0.875rem;
-  color: #6b6b72;
+  color: var(--muted);
   font-family: 'DM Sans', sans-serif;
 }
 
 .auth-link a {
-  color: #c8f060;
+  color: var(--accent);
   text-decoration: none;
   font-weight: 500;
 }
@@ -254,8 +254,8 @@
 .success-icon {
   width: 56px;
   height: 56px;
-  background: #c8f060;
-  color: #0d0d0f;
+  background: var(--accent);
+  color: var(--bg);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -269,12 +269,12 @@
   font-family: 'Syne', sans-serif;
   font-weight: 700;
   font-size: 1.1rem;
-  color: #f0f0ee;
+  color: var(--text);
 }
 
 .success-sub {
   font-family: 'DM Sans', sans-serif !important;
   font-weight: 400 !important;
   font-size: 0.85rem !important;
-  color: #6b6b72 !important;
+  color: var(--muted) !important;
 }
