@@ -1,4 +1,5 @@
 import admin from "firebase-admin";
+import { getFirestore } from "firebase-admin/firestore";
 
 function getServiceAccount() {
   const json = process.env.FIREBASE_SERVICE_ACCOUNT;
@@ -25,6 +26,8 @@ if (serviceAccount) {
     console.warn("Firebase Admin no se pudo inicializar.");
   }
 }
+
+export const db = initialized ? getFirestore() : null;
 
 export function isFirebaseReady() {
   return initialized;

@@ -1,7 +1,7 @@
 import express from "express";
 import "dotenv/config";
 import { generateProjectAnswer } from "./services/aiService.js";
-import { verifyFirebaseToken, isFirebaseReady } from "./services/firebaseAdmin.js";
+import { verifyFirebaseToken, isFirebaseReady, db } from "./services/firebaseAdmin.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -41,6 +41,121 @@ async function authMiddleware(req, res, next) {
 
 app.get("/api/health", (req, res) => {
   res.json({ ok: true, service: "kamilo-atlas-backend" });
+});
+
+app.get("/api/projects", authMiddleware, async (req, res) => {
+  if (!isFirebaseReady() || !db) {
+    return res.status(503).json({ error: "FIREBASE_NOT_READY", message: "Firebase no está configurado." });
+  }
+
+  try {
+    const snapshot = await db
+      .collection("projects")
+      .where("userId", "==", req.user.uid)
+      .orderBy("createdAt", "desc")
+      .get();
+
+    const projects = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    res.json(projects);
+  } catch (error) {
+    res.status(500).json({ error: "FETCH_FAILED", message: error.message });
+  }
+});
+
+app.post("/api/projects", authMiddleware, async (req, res) => {
+  if (!isFirebaseReady() || !db) {
+    return res.status(503).json({ error: "FIREBASE_NOT_READY", message: "Firebase no está configurado." });
+  }
+
+  const { id, name, notas, links, archivos } = req.body ?? {};
+
+  if (!name || typeof name !== "string" || !name.trim()) {
+    return res.status(400).json({ error: "NAME_REQUIRED", message: "El nombre del proyecto es obligatorio." });
+  }
+
+  try {
+    const project = {
+      userId: req.user.uid,
+      name: name.trim(),
+      notas: Array.isArray(notas) ? notas : [],
+      links: Array.isArray(links) ? links : [],
+      archivos: Array.isArray(archivos) ? archivos : [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    const docRef = id ? db.collection("projects").doc(id) : db.collection("projects").doc();
+    await docRef.set(project);
+
+    res.status(201).json({ id: docRef.id, ...project });
+  } catch (error) {
+    res.status(500).json({ error: "CREATE_FAILED", message: error.message });
+  }
+});
+
+app.put("/api/projects/:projectId", authMiddleware, async (req, res) => {
+  if (!isFirebaseReady() || !db) {
+    return res.status(503).json({ error: "FIREBASE_NOT_READY", message: "Firebase no está configurado." });
+  }
+
+  const { projectId } = req.params;
+  const { name, notas, links, archivos } = req.body ?? {};
+
+  try {
+    const docRef = db.collection("projects").doc(projectId);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      return res.status(404).json({ error: "NOT_FOUND", message: "Proyecto no encontrado." });
+    }
+
+    if (doc.data().userId !== req.user.uid) {
+      return res.status(403).json({ error: "FORBIDDEN", message: "No tienes permiso para modificar este proyecto." });
+    }
+
+    const updates = { updatedAt: new Date().toISOString() };
+    if (name !== undefined) updates.name = name.trim();
+    if (notas !== undefined) updates.notas = notas;
+    if (links !== undefined) updates.links = links;
+    if (archivos !== undefined) updates.archivos = archivos;
+
+    await docRef.update(updates);
+
+    const updated = await docRef.get();
+    res.json({ id: updated.id, ...updated.data() });
+  } catch (error) {
+    res.status(500).json({ error: "UPDATE_FAILED", message: error.message });
+  }
+});
+
+app.delete("/api/projects/:projectId", authMiddleware, async (req, res) => {
+  if (!isFirebaseReady() || !db) {
+    return res.status(503).json({ error: "FIREBASE_NOT_READY", message: "Firebase no está configurado." });
+  }
+
+  const { projectId } = req.params;
+
+  try {
+    const docRef = db.collection("projects").doc(projectId);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      return res.status(404).json({ error: "NOT_FOUND", message: "Proyecto no encontrado." });
+    }
+
+    if (doc.data().userId !== req.user.uid) {
+      return res.status(403).json({ error: "FORBIDDEN", message: "No tienes permiso para eliminar este proyecto." });
+    }
+
+    await docRef.delete();
+    res.json({ message: "Proyecto eliminado." });
+  } catch (error) {
+    res.status(500).json({ error: "DELETE_FAILED", message: error.message });
+  }
 });
 
 app.post("/api/projects/:projectId/chat", authMiddleware, async (req, res) => {

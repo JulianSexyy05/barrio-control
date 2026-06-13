@@ -1,37 +1,58 @@
-const STORAGE_KEY = "kamilo-projects";
+import { auth } from "./firebase";
 
-function normalizeProject(project, index) {
-  return {
-    id: project.id ?? Date.now() + index,
-    name: project.name ?? "Proyecto sin nombre",
-    notas: Array.isArray(project.notas) ? project.notas : [],
-    links: Array.isArray(project.links) ? project.links : [],
-    archivos: Array.isArray(project.archivos) ? project.archivos : [],
-  }; // estas lineas se encargan de asegurar que cada proyecto tenga una estructura consistente, asignando valores predeterminados en caso de que falten propiedades o tengan formatos incorrectos. Esto ayuda a prevenir errores al manipular los proyectos en la aplicación.
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+
+async function getAuthToken() {
+  if (!auth.currentUser) throw new Error("Usuario no autenticado");
+  return auth.currentUser.getIdToken();
 }
 
-export function getProjects() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return [];
+async function apiFetch(path, options = {}) {
+  const token = await getAuthToken();
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      ...options.headers,
+    },
+    ...options,
+  });
 
-    const projects = JSON.parse(saved);
-    return Array.isArray(projects) ? projects.map(normalizeProject) : [];
-  } catch {
-    return [];
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.message || `Error ${res.status}`);
   }
+
+  return res.json();
 }
 
-export function saveProjects(projects) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+export async function getProjects() {
+  return apiFetch("/projects");
 }
 
-export function createProject(name) {
-  return {
+export async function createProject(name) {
+  const project = {
     id: crypto.randomUUID(),
     name: name.trim(),
     notas: [],
     links: [],
     archivos: [],
   };
+  return apiFetch("/projects", {
+    method: "POST",
+    body: JSON.stringify(project),
+  });
+}
+
+export async function updateProject(project) {
+  return apiFetch(`/projects/${project.id}`, {
+    method: "PUT",
+    body: JSON.stringify(project),
+  });
+}
+
+export async function deleteProject(projectId) {
+  return apiFetch(`/projects/${projectId}`, {
+    method: "DELETE",
+  });
 }

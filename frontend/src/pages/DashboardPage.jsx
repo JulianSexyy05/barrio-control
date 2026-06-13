@@ -3,52 +3,88 @@ import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import ProjectModal from "../components/ProjectModal";
 import ProjectContent from "../components/ProjectContent";
-import { logoutUser } from "../services/auth";
-import { getProjects, saveProjects, createProject } from "../services/projects";
+import { logoutUser, onAuthChange } from "../services/auth";
+import { getProjects, createProject, updateProject, deleteProject } from "../services/projects";
 import "../styles/dashboard.css";
 
-export default function DashboardPage() { // El estado de proyectos se inicializa con los datos cargados desde localStorage usando getProjects()
-  const [projects, setProjects] = useState(() => getProjects()); // Cargar proyectos desde localStorage al iniciar el componente
-  const [modalOpen, setModalOpen] = useState(false); // Para controlar la visibilidad del modal de creación de proyectos
-  const [expandedId, setExpandedId] = useState(null); // Para controlar qué proyecto está expandido en la lista
-  const navigate = useNavigate(); // Para redirigir al login después de cerrar sesión
+export default function DashboardPage() {
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [expandedId, setExpandedId] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    saveProjects(projects); // Guardar proyectos en localStorage cada vez que cambie el estado de proyectos para persistir los datos entre sesiones
-  }, [projects]);
+    const unsubscribe = onAuthChange((user) => {
+      if (!user) {
+        navigate("/login");
+        return;
+      }
+      loadProjects();
+    });
+    return unsubscribe;
+  }, []);
 
-  const handleCreateProject = (name) => {
-    if (name.trim()) {
-      setProjects([...projects, createProject(name)]); // Crear un nuevo proyecto usando la función createProject y agregarlo al estado de proyectos
+  async function loadProjects() {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getProjects();
+      setProjects(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-    setModalOpen(false);
+  }
+
+  const handleCreateProject = async (name) => {
+    if (!name.trim()) return;
+    try {
+      const project = await createProject(name);
+      setProjects([project, ...projects]);
+      setModalOpen(false);
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   const toggleExpand = (id) => {
-    setExpandedId(expandedId === id ? null : id); // estas dos lineas se encargan de expandir o colapsar el contenido del proyecto al hacer clic en su encabezado. Si el proyecto ya está expandido (expandedId === id), se colapsa estableciendo expandedId a null. Si no está expandido, se establece expandedId al id del proyecto para mostrar su contenido.
+    setExpandedId(expandedId === id ? null : id);
   };
 
-  const handleDeleteProject = (projectId) => {
+  const handleDeleteProject = async (projectId) => {
     const project = projects.find((p) => p.id === projectId);
-    if (!project) return; /// Si no se encuentra el proyecto, no hacer nada
+    if (!project) return;
 
     const confirmed = window.confirm(`¿Eliminar "${project.name}" y todo su contenido?`);
     if (!confirmed) return;
 
-    setProjects(projects.filter((p) => p.id !== projectId));
-    if (expandedId === projectId) setExpandedId(null);  // Si el proyecto eliminado estaba expandido, colapsar su contenido estableciendo expandedId a null
+    try {
+      await deleteProject(projectId);
+      setProjects(projects.filter((p) => p.id !== projectId));
+      if (expandedId === projectId) setExpandedId(null);
+    } catch (err) {
+      setError(err.message);
+    }
   };
-   
-  
 
-  const handleUpdateProject = (updatedProject) => {
-    setProjects(projects.map((p) => (p.id === updatedProject.id ? updatedProject : p))); // Actualizar el proyecto en el estado de proyectos reemplazando el proyecto con el mismo id por el proyecto actualizado
+  const handleUpdateProject = async (updatedProject) => {
+    try {
+      const result = await updateProject(updatedProject);
+      setProjects(projects.map((p) => (p.id === result.id ? result : p)));
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   const handleLogout = async () => {
     await logoutUser();
     navigate("/login");
   };
+
+  if (loading) return <div className="dashboard"><p>Cargando proyectos...</p></div>;
 
   return (
     <div className="dashboard">
@@ -62,6 +98,8 @@ export default function DashboardPage() { // El estado de proyectos se inicializ
           <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
         </div>
       </header>
+
+      {error && <div className="error-banner">{error}</div>}
 
       <section className="projects-section">
         <h2 className="section-title">Proyectos recientes</h2>
@@ -81,13 +119,13 @@ export default function DashboardPage() { // El estado de proyectos se inicializ
                   <div className="project-card-left">
                     <span className="project-index">#{String(index + 1).padStart(2, "0")}</span>
                     <p className="project-name">{project.name}</p>
-                  </div> 
+                  </div>
                   <div className="project-card-actions">
                     <button
                       className="project-delete-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDeleteProject(project.id); // Evita que el clic en el botón de eliminar también dispare la función toggleExpand al hacer clic en el encabezado del proyecto
+                        handleDeleteProject(project.id);
                       }}
                       title="Eliminar proyecto"
                     >
