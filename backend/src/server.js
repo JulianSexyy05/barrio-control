@@ -1,7 +1,7 @@
 import express from "express";
 import "dotenv/config";
 import { generateProjectAnswer } from "./services/aiService.js";
-import { verifyFirebaseToken, isFirebaseReady, db, getFirebaseDebug } from "./services/firebaseAdmin.js";
+import { verifyFirebaseToken, isFirebaseReady, db } from "./services/firebaseAdmin.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -40,11 +40,7 @@ async function authMiddleware(req, res, next) {
 }
 
 app.get("/api/health", (req, res) => {
-  res.json({
-    ok: true,
-    service: "kamilo-atlas-backend",
-    firebaseDebug: getFirebaseDebug(),
-  });
+  res.json({ ok: true, service: "kamilo-atlas-backend" });
 });
 
 app.get("/api/projects", authMiddleware, async (req, res) => {
