@@ -34,10 +34,10 @@ export function isFirebaseReady() {
 }
 
 export async function verifyFirebaseToken(token) {
-  if (!initialized) return null;
+  if (!initialized) return { error: "Firebase no inicializado" };
   try {
     return await admin.auth().verifyIdToken(token);
-  } catch {
-    return null;
+  } catch (e) {
+    return { error: e.message };
   }
 }
