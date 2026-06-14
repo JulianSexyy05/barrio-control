@@ -31,12 +31,8 @@ async function authMiddleware(req, res, next) {
   const token = header.split(" ")[1];
   const result = await verifyFirebaseToken(token);
 
-  if (result.error) {
-    return res.status(401).json({ error: "UNAUTHORIZED", message: "Token inválido: " + result.error });
-  }
-
-  if (!result) {
-    return res.status(401).json({ error: "UNAUTHORIZED", message: "Token no válido." });
+  if (!result || result.error) {
+    return res.status(401).json({ error: "UNAUTHORIZED", message: "Token inválido o expirado." });
   }
 
   req.user = result;
