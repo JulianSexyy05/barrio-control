@@ -40,7 +40,15 @@ async function authMiddleware(req, res, next) {
 }
 
 app.get("/api/health", (req, res) => {
-  res.json({ ok: true, service: "kamilo-atlas-backend" });
+  const fbKey = process.env.FIREBASE_SERVICE_ACCOUNT;
+  res.json({
+    ok: true,
+    service: "kamilo-atlas-backend",
+    firebase: isFirebaseReady() ? "ready" : "not_ready",
+    hasFirebaseEnv: !!fbKey,
+    firebaseEnvLength: fbKey ? fbKey.length : 0,
+    firebaseEnvStart: fbKey ? fbKey.slice(0, 80) : null,
+  });
 });
 
 app.get("/api/projects", authMiddleware, async (req, res) => {
