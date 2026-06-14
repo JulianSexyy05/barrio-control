@@ -3,14 +3,18 @@ import { getFirestore } from "firebase-admin/firestore";
 
 function getServiceAccount() {
   const json = process.env.FIREBASE_SERVICE_ACCOUNT;
-  if (!json) return null;
+  if (!json) {
+    console.warn("FIREBASE_SERVICE_ACCOUNT no está definida.");
+    return null;
+  }
   try {
     const account = JSON.parse(json);
     if (account.private_key) {
       account.private_key = account.private_key.replace(/\\n/g, "\n");
     }
     return account;
-  } catch {
+  } catch (e) {
+    console.warn("Error al parsear FIREBASE_SERVICE_ACCOUNT:", e.message);
     return null;
   }
 }
