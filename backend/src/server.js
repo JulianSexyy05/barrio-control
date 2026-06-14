@@ -1,7 +1,7 @@
 import express from "express";
 import "dotenv/config";
 import { generateProjectAnswer } from "./services/aiService.js";
-import { verifyFirebaseToken, isFirebaseReady, db } from "./services/firebaseAdmin.js";
+import { verifyFirebaseToken, isFirebaseReady, db, getFirebaseDebug } from "./services/firebaseAdmin.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -40,14 +40,10 @@ async function authMiddleware(req, res, next) {
 }
 
 app.get("/api/health", (req, res) => {
-  const fbKey = process.env.FIREBASE_SERVICE_ACCOUNT;
   res.json({
     ok: true,
     service: "kamilo-atlas-backend",
-    firebase: isFirebaseReady() ? "ready" : "not_ready",
-    hasFirebaseEnv: !!fbKey,
-    firebaseEnvLength: fbKey ? fbKey.length : 0,
-    firebaseEnvStart: fbKey ? fbKey.slice(0, 80) : null,
+    firebaseDebug: getFirebaseDebug(),
   });
 });
 

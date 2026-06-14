@@ -1,10 +1,12 @@
 import admin from "firebase-admin";
 import { getFirestore } from "firebase-admin/firestore";
 
+let fbDebug = {};
+
 function getServiceAccount() {
   const json = process.env.FIREBASE_SERVICE_ACCOUNT;
   if (!json) {
-    console.warn("FIREBASE_SERVICE_ACCOUNT no está definida.");
+    fbDebug.error = "FIREBASE_SERVICE_ACCOUNT no definida";
     return null;
   }
   try {
@@ -14,7 +16,9 @@ function getServiceAccount() {
     }
     return account;
   } catch (e) {
-    console.warn("Error al parsear FIREBASE_SERVICE_ACCOUNT:", e.message);
+    fbDebug.error = "JSON.parse: " + e.message;
+    fbDebug.start = json.slice(0, 100);
+    fbDebug.end = json.slice(-100);
     return null;
   }
 }
@@ -26,8 +30,9 @@ if (serviceAccount) {
   try {
     admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
     initialized = true;
-  } catch {
-    console.warn("Firebase Admin no se pudo inicializar.");
+  } catch (e) {
+    fbDebug.error = "admin.initializeApp: " + e.message;
+    console.warn("Firebase Admin no se pudo inicializar:", e.message);
   }
 }
 
@@ -35,6 +40,10 @@ export const db = initialized ? getFirestore() : null;
 
 export function isFirebaseReady() {
   return initialized;
+}
+
+export function getFirebaseDebug() {
+  return { initialized, ...fbDebug };
 }
 
 export async function verifyFirebaseToken(token) {
