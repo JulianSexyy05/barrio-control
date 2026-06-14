@@ -1,5 +1,6 @@
 import admin from "firebase-admin";
 import { getFirestore } from "firebase-admin/firestore";
+import { getAuth } from "firebase-admin/auth";
 
 function getServiceAccount() {
   const json = process.env.FIREBASE_SERVICE_ACCOUNT;
@@ -36,7 +37,8 @@ export function isFirebaseReady() {
 export async function verifyFirebaseToken(token) {
   if (!initialized) return { error: "Firebase no inicializado" };
   try {
-    return await admin.auth().verifyIdToken(token);
+    const auth = getAuth();
+    return await auth.verifyIdToken(token);
   } catch (e) {
     return { error: e.message };
   }
