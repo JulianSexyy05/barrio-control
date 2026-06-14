@@ -1,6 +1,5 @@
 import admin from "firebase-admin";
 import { getFirestore } from "firebase-admin/firestore";
-import { cert } from "firebase-admin/credential";
 
 let fbDebug = {};
 
@@ -29,7 +28,7 @@ const serviceAccount = getServiceAccount();
 let initialized = false;
 if (serviceAccount) {
   try {
-    admin.initializeApp({ credential: cert(serviceAccount) });
+    admin.initializeApp({ credential: admin.cert(serviceAccount) });
     initialized = true;
   } catch (e) {
     fbDebug.error = "admin.initializeApp: " + e.message;
