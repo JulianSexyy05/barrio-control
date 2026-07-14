@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Rol {
+  ADMIN
+  TESORERO
+  CONSULTA
+}
+
+enum TipoMovimiento {
+  INGRESO
+  EGRESO
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  correo    String   @unique
+  password  String
+  rol       Rol      @default(TESORERO)
+  creadoEn  DateTime @default(now()) @map("creado_en")
+  movimientos Movimiento[]
+
+  @@map("usuarios")
+}
+
+model Persona {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  casa        String?
+  telefono    String?
+  observaciones String?
+  creadoEn    DateTime @default(now()) @map("creado_en")
+  movimientos Movimiento[]
+
+  @@map("personas")
+}
+
+model Movimiento {
+  id          Int             @id @default(autoincrement())
+  fecha       DateTime
+  hora        String?
+  tipo        TipoMovimiento
+  concepto    String
+  valor       Decimal         @db.Decimal(12, 2)
+  saldo       Decimal?        @db.Decimal(12, 2)
+  observaciones String?
+  personaId   Int?            @map("persona_id")
+  usuarioId   Int             @map("usuario_id")
+  creadoEn    DateTime        @default(now()) @map("creado_en")
+  actualizadoEn DateTime      @updatedAt @map("actualizado_en")
+
+  persona     Persona?        @relation(fields: [personaId], references: [id])
+  usuario     Usuario         @relation(fields: [usuarioId], references: [id])
+
+  @@map("movimientos")
+}

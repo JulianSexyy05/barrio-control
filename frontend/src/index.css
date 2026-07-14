@@ -1,31 +1,19 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+@import "tailwindcss";
 
-:root {
-  --bg: #07080e;
-  --surface: #0e101b;
-  --surface-card: #141727;
-  --border: #20243e;
-  --border-hover: #2e345a;
-  --accent: #00e5ff;
-  --accent-rgb: 0, 229, 255;
-  --accent-secondary: #6366f1;
-  --accent-secondary-rgb: 99, 102, 241;
-  --text: #f0f2f8;
-  --muted: #747b9e;
-  --error: #ff5c5c;
+@theme {
+  --color-primary: #2563eb;
+  --color-primary-dark: #1d4ed8;
+  --color-primary-light: #60a5fa;
+  --color-success: #16a34a;
+  --color-success-light: #dcfce7;
+  --color-danger: #dc2626;
+  --color-danger-light: #fee2e2;
+  --color-surface: #f8fafc;
+  --color-border: #e2e8f0;
 }
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-}
-
-#root {
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

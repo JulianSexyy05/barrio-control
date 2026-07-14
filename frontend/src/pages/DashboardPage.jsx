@@ -1,162 +1,118 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import Button from "../components/Button";
-import ProjectModal from "../components/ProjectModal";
-import ProjectContent from "../components/ProjectContent";
-import { logoutUser, onAuthChange } from "../services/auth";
-import { getProjects, createProject, updateProject, deleteProject } from "../services/projects";
-import "../styles/dashboard.css";
+import { obtenerResumen, listarMovimientos } from "../services/movimientos";
+import { useAuth } from "../hooks/useAuth";
+import DashboardLayout from "../layouts/DashboardLayout";
+import { Link } from "react-router-dom";
+
+function formatCurrency(value) {
+  return new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(value || 0);
+}
+
+function formatDate(dateStr) {
+  return new Date(dateStr).toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
 
 export default function DashboardPage() {
-  const [projects, setProjects] = useState([]);
+  const { user } = useAuth();
+  const [resumen, setResumen] = useState(null);
+  const [recent, setRecent] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [expandedId, setExpandedId] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthChange((user) => {
-      if (!user) {
-        navigate("/login");
-        return;
+    async function load() {
+      try {
+        const [res, mov] = await Promise.all([
+          obtenerResumen(),
+          listarMovimientos({ limit: 5 }),
+        ]);
+        setResumen(res);
+        setRecent(mov.movimientos || []);
+      } catch (err) {
+        console.error("Error loading dashboard:", err);
+      } finally {
+        setLoading(false);
       }
-      loadProjects();
-    });
-    return unsubscribe;
+    }
+    load();
   }, []);
 
-  async function loadProjects() {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getProjects();
-      setProjects(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <p className="text-gray-500">Cargando...</p>
+        </div>
+      </DashboardLayout>
+    );
   }
 
-  const handleCreateProject = async (name) => {
-    if (!name.trim()) return;
-    try {
-      const project = await createProject(name);
-      setProjects([project, ...projects]);
-      setModalOpen(false);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const toggleExpand = (id) => {
-    setExpandedId(expandedId === id ? null : id);
-  };
-
-  const handleDeleteProject = async (projectId) => {
-    const project = projects.find((p) => p.id === projectId);
-    if (!project) return;
-
-    const confirmed = window.confirm(`¿Eliminar "${project.name}" y todo su contenido?`);
-    if (!confirmed) return;
-
-    try {
-      await deleteProject(projectId);
-      setProjects(projects.filter((p) => p.id !== projectId));
-      if (expandedId === projectId) setExpandedId(null);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleUpdateProject = async (updatedProject) => {
-    try {
-      const result = await updateProject(updatedProject);
-      setProjects(projects.map((p) => (p.id === result.id ? result : p)));
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleLogout = async () => {
-    await logoutUser();
-    navigate("/login");
-  };
-
-  if (loading) return <div className="dashboard"><p>Cargando proyectos...</p></div>;
+  const cards = [
+    { label: "Saldo actual", value: formatCurrency(resumen?.saldoActual), color: "text-gray-900" },
+    { label: "Ingresos del mes", value: formatCurrency(resumen?.ingresosMes), color: "text-success" },
+    { label: "Egresos del mes", value: formatCurrency(resumen?.egresosMes), color: "text-danger" },
+    { label: "Movimientos del mes", value: resumen?.movimientosMes || 0, color: "text-primary" },
+  ];
 
   return (
-    <div className="dashboard">
-      <header className="dashboard-header">
-        <div className="header-text">
-          <h1 className="dashboard-title">Kamilo Atlas</h1>
-          <p className="dashboard-subtitle">Tu centro de conocimiento personal inteligente.</p>
-        </div>
-        <div className="header-actions">
-          <Button text="+ Crear Proyecto" onClick={() => setModalOpen(true)} />
-          <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
-        </div>
-      </header>
-
-      {error && <div className="error-banner">{error}</div>}
-
-      <section className="projects-section">
-        <h2 className="section-title">Proyectos recientes</h2>
-
-        {projects.length === 0 ? (
-          <div className="projects-empty">
-            <p className="projects-empty-title">Aún no tienes proyectos</p>
-            <p className="projects-empty-text">Crea tu primer espacio para guardar notas, links y archivos.</p>
-            <Button text="+ Crear Proyecto" onClick={() => setModalOpen(true)} />
+    <DashboardLayout>
+      <div className="max-w-5xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Bienvenido, {user?.nombre || "Usuario"}
+            </p>
           </div>
-        ) : (
-          <div className="projects-list">
-            {projects.map((project, index) => (
-              <div key={project.id} className={`project-card ${expandedId === project.id ? "expanded" : ""}`}>
+          <Link
+            to="/movimientos?nuevo=true"
+            className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-dark transition-colors"
+          >
+            + Nuevo movimiento
+          </Link>
+        </div>
 
-                <div className="project-card-header" onClick={() => toggleExpand(project.id)}>
-                  <div className="project-card-left">
-                    <span className="project-index">#{String(index + 1).padStart(2, "0")}</span>
-                    <p className="project-name">{project.name}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {cards.map((card) => (
+            <div key={card.label} className="bg-white rounded-xl border border-border p-5 shadow-sm">
+              <p className="text-sm text-gray-500 mb-1">{card.label}</p>
+              <p className={`text-2xl font-semibold ${card.color}`}>{card.value}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-white rounded-xl border border-border shadow-sm">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+            <h2 className="text-sm font-semibold text-gray-900">Últimos movimientos</h2>
+            <Link to="/movimientos" className="text-sm text-primary hover:underline">
+              Ver todos
+            </Link>
+          </div>
+          {recent.length === 0 ? (
+            <div className="p-5 text-center text-sm text-gray-500">
+              No hay movimientos registrados aún.
+            </div>
+          ) : (
+            <div className="divide-y divide-border">
+              {recent.map((mov) => (
+                <div key={mov.id} className="flex items-center justify-between px-5 py-3">
+                  <div className="flex items-center gap-3">
+                    <span className={`w-2 h-2 rounded-full ${mov.tipo === "INGRESO" ? "bg-success" : "bg-danger"}`} />
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{mov.concepto}</p>
+                      <p className="text-xs text-gray-500">
+                        {formatDate(mov.fecha)} {mov.hora || ""} · {mov.persona?.nombre || "Sin persona"}
+                      </p>
+                    </div>
                   </div>
-                  <div className="project-card-actions">
-                    <button
-                      className="project-delete-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteProject(project.id);
-                      }}
-                      title="Eliminar proyecto"
-                    >
-                      Eliminar
-                    </button>
-                    <span className={`expand-icon ${expandedId === project.id ? "open" : ""}`}>
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </span>
-                  </div>
+                  <span className={`text-sm font-semibold ${mov.tipo === "INGRESO" ? "text-success" : "text-danger"}`}>
+                    {mov.tipo === "INGRESO" ? "+" : "-"}{formatCurrency(mov.valor)}
+                  </span>
                 </div>
-
-                {expandedId === project.id && (
-                  <div className="project-card-body">
-                    <ProjectContent project={project} onUpdate={handleUpdateProject} />
-                  </div>
-                )}
-
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {modalOpen && (
-        <ProjectModal
-          onConfirm={handleCreateProject}
-          onCancel={() => setModalOpen(false)}
-        />
-      )}
-    </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </DashboardLayout>
   );
 }
