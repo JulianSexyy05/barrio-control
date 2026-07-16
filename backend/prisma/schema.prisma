@@ -1,6 +1,5 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -24,8 +23,10 @@ model Usuario {
   correo    String   @unique
   password  String
   rol       Rol      @default(TESORERO)
+  barrio    String?
   creadoEn  DateTime @default(now()) @map("creado_en")
   movimientos Movimiento[]
+  personas    Persona[]
 
   @@map("usuarios")
 }
@@ -37,6 +38,8 @@ model Persona {
   telefono    String?
   observaciones String?
   creadoEn    DateTime @default(now()) @map("creado_en")
+  usuarioId   Int?     @map("usuario_id")
+  usuario     Usuario? @relation(fields: [usuarioId], references: [id])
   movimientos Movimiento[]
 
   @@map("personas")

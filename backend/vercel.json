@@ -1,0 +1,13 @@
+{
+  "buildCommand": "npx prisma generate",
+  "outputDirectory": ".",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/index.js" }
+  ],
+  "functions": {
+    "api/index.js": {
+      "memory": 256,
+      "maxDuration": 10
+    }
+  }
+}

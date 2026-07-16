@@ -5,7 +5,7 @@ import { JWT_SECRET, JWT_EXPIRES_IN } from "../config/env.js";
 
 const SALT_ROUNDS = 10;
 
-export async function register({ nombre, correo, password, rol }) {
+export async function register({ nombre, correo, password, rol, barrio }) {
   const existente = await prisma.usuario.findUnique({ where: { correo } });
   if (existente) {
     const error = new Error("El correo ya está registrado.");
@@ -17,12 +17,12 @@ export async function register({ nombre, correo, password, rol }) {
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
   const usuario = await prisma.usuario.create({
-    data: { nombre, correo, password: hashedPassword, rol },
-    select: { id: true, nombre: true, correo: true, rol: true, creadoEn: true },
+    data: { nombre, correo, password: hashedPassword, rol, barrio },
+    select: { id: true, nombre: true, correo: true, rol: true, barrio: true, creadoEn: true },
   });
 
   const token = jwt.sign(
-    { id: usuario.id, nombre: usuario.nombre, correo: usuario.correo, rol: usuario.rol },
+    { id: usuario.id, nombre: usuario.nombre, correo: usuario.correo, rol: usuario.rol, barrio: usuario.barrio },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN }
   );
@@ -48,13 +48,13 @@ export async function login({ correo, password }) {
   }
 
   const token = jwt.sign(
-    { id: usuario.id, nombre: usuario.nombre, correo: usuario.correo, rol: usuario.rol },
+    { id: usuario.id, nombre: usuario.nombre, correo: usuario.correo, rol: usuario.rol, barrio: usuario.barrio },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN }
   );
 
   return {
-    usuario: { id: usuario.id, nombre: usuario.nombre, correo: usuario.correo, rol: usuario.rol },
+    usuario: { id: usuario.id, nombre: usuario.nombre, correo: usuario.correo, rol: usuario.rol, barrio: usuario.barrio },
     token,
   };
 }

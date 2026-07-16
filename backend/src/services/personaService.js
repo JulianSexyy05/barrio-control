@@ -1,7 +1,7 @@
 import { prisma } from "../utils/prisma.js";
 
-export async function listar({ search } = {}) {
-  const where = {};
+export async function listar({ search, usuarioId } = {}) {
+  const where = { usuarioId };
   if (search) {
     where.OR = [
       { nombre: { contains: search, mode: "insensitive" } },
@@ -16,7 +16,7 @@ export async function listar({ search } = {}) {
 }
 
 export async function crear(data) {
-  const { nombre, casa, telefono, observaciones } = data;
+  const { nombre, casa, telefono, observaciones, usuarioId } = data;
 
   return prisma.persona.create({
     data: {
@@ -24,16 +24,23 @@ export async function crear(data) {
       casa: casa?.trim() || null,
       telefono: telefono?.trim() || null,
       observaciones: observaciones?.trim() || null,
+      usuarioId,
     },
   });
 }
 
-export async function actualizar(id, data) {
+export async function actualizar(id, data, usuarioId) {
   const existente = await prisma.persona.findUnique({ where: { id } });
   if (!existente) {
     const error = new Error("Persona no encontrada.");
     error.status = 404;
     error.code = "NOT_FOUND";
+    throw error;
+  }
+  if (existente.usuarioId !== usuarioId) {
+    const error = new Error("No tienes permiso para modificar esta persona.");
+    error.status = 403;
+    error.code = "FORBIDDEN";
     throw error;
   }
 
@@ -50,12 +57,18 @@ export async function actualizar(id, data) {
   });
 }
 
-export async function eliminar(id) {
+export async function eliminar(id, usuarioId) {
   const existente = await prisma.persona.findUnique({ where: { id } });
   if (!existente) {
     const error = new Error("Persona no encontrada.");
     error.status = 404;
     error.code = "NOT_FOUND";
+    throw error;
+  }
+  if (existente.usuarioId !== usuarioId) {
+    const error = new Error("No tienes permiso para eliminar esta persona.");
+    error.status = 403;
+    error.code = "FORBIDDEN";
     throw error;
   }
 

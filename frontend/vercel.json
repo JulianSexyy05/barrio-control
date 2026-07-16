@@ -2,5 +2,11 @@
   "buildCommand": "vite build",
   "outputDirectory": "dist",
   "devCommand": "vite",
-  "framework": "vite"
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }

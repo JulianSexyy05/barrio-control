@@ -46,7 +46,7 @@ export async function generarPDF(usuarioId, { fechaDesde, fechaHasta } = {}) {
     doc.font("Helvetica-Bold").fontSize(10).fillColor("#2563eb").text("BARRIOCONTROL", leftMargin, 45);
 
     doc.font("Helvetica").fontSize(8).fillColor("#6b7280")
-      .text("Junta de Acción Comunal - Barrio Colombia", leftMargin, 62);
+      .text(usuario?.barrio || "Junta de Acción Comunal", leftMargin, 62);
 
     doc.font("Helvetica-Bold").fontSize(16).fillColor("#111827")
       .text("Reporte de Movimientos", leftMargin, 85);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
@@ -13,6 +13,36 @@ export default function DashboardLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
+
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    setIsIOS(/iphone|ipad|ipod/i.test(ua));
+
+    const handler = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      setIsInstalled(true);
+    }
+
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const result = await installPrompt.userChoice;
+    if (result.outcome === "accepted") {
+      setInstallPrompt(null);
+      setIsInstalled(true);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -58,6 +88,32 @@ export default function DashboardLayout({ children }) {
             );
           })}
         </nav>
+
+        {!isInstalled && (
+          <div className="px-4 py-2">
+            {installPrompt ? (
+              <button
+                onClick={handleInstall}
+                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-primary bg-primary/5 hover:bg-primary/10 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 15V3m0 12l-4-4m4 4l4-4M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17M17 21v-2" />
+                </svg>
+                Instalar app
+              </button>
+            ) : isIOS ? (
+              <div className="text-xs text-gray-500 px-1 py-1 leading-relaxed">
+                Para instalar, toca el icono de compartir{" "}
+                <svg className="w-4 h-4 inline-block align-middle" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                  <rect x="3" y="13" width="18" height="8" rx="2" />
+                  <path d="M12 3v10" />
+                  <path d="M8 7l4-4 4 4" />
+                </svg>{" "}
+                y "Agregar a pantalla de inicio"
+              </div>
+            ) : null}
+          </div>
+        )}
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border">
           <div className="flex items-center gap-3 px-4 py-2">
