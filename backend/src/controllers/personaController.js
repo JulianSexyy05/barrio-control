@@ -10,6 +10,16 @@ export async function listar(req, res, next) {
   }
 }
 
+export async function obtener(req, res, next) {
+  try {
+    const { id } = req.params;
+    const persona = await personaService.obtener(parseInt(id), req.usuario.id);
+    res.json(persona);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function crear(req, res, next) {
   try {
     const persona = await personaService.crear({ ...req.body, usuarioId: req.usuario.id });

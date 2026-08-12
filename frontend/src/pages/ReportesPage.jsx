@@ -1,8 +1,10 @@
 import { useState } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
 import api from "../services/api";
+import { useAuth } from "../hooks/useAuth";
 
 export default function ReportesPage() {
+  const { user } = useAuth();
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
   const [downloading, setDownloading] = useState(false);
@@ -22,7 +24,13 @@ export default function ReportesPage() {
       const url = URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
       const link = document.createElement("a");
       link.href = url;
-      const filename = `reporte-barrio-colombia${
+      const cuentaSlug = (user?.cuenta || "cuenta")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+      const filename = `reporte-${cuentaSlug}${
         fechaDesde && fechaHasta ? `_${fechaDesde}_a_${fechaHasta}` : "_todos"
       }.pdf`;
       link.setAttribute("download", filename);
@@ -30,7 +38,7 @@ export default function ReportesPage() {
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
-    } catch (err) {
+    } catch {
       alert("Error al descargar el reporte.");
     } finally {
       setDownloading(false);
@@ -43,7 +51,7 @@ export default function ReportesPage() {
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-gray-900">Reportes</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Junta de Acción Comunal - Barrio Colombia
+            {user?.cuenta || "Cuenta general"}
           </p>
         </div>
 

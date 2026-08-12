@@ -43,25 +43,23 @@ export async function generarPDF(usuarioId, { fechaDesde, fechaHasta } = {}) {
     const pageWidth = doc.page.width - 100;
     const leftMargin = 50;
 
-    doc.font("Helvetica-Bold").fontSize(10).fillColor("#2563eb").text("BARRIOCONTROL", leftMargin, 45);
-
-    doc.font("Helvetica").fontSize(8).fillColor("#6b7280")
-      .text(usuario?.barrio || "Junta de Acción Comunal", leftMargin, 62);
-
     doc.font("Helvetica-Bold").fontSize(16).fillColor("#111827")
-      .text("Reporte de Movimientos", leftMargin, 85);
+      .text(usuario?.cuenta || "Cuenta general", leftMargin, 45);
+
+    doc.font("Helvetica").fontSize(9).fillColor("#6b7280")
+      .text("Reporte de Movimientos", leftMargin, 68);
 
     const periodo = fechaDesde && fechaHasta
       ? `Del ${formatDate(fechaDesde)} al ${formatDate(fechaHasta)}`
       : "Todos los movimientos";
-    doc.font("Helvetica").fontSize(9).fillColor("#6b7280").text(periodo, leftMargin, 107);
+    doc.font("Helvetica").fontSize(9).fillColor("#6b7280").text(periodo, leftMargin, 85);
 
     if (usuario) {
       doc.font("Helvetica").fontSize(8).fillColor("#9ca3af")
-        .text(`Generado por: ${usuario.nombre}`, leftMargin, 122);
+        .text(`Generado por: ${usuario.nombre}`, leftMargin, 100);
     }
 
-    const summaryY = 142;
+    const summaryY = 122;
     doc.roundedRect(leftMargin, summaryY, pageWidth, 60, 6).fill("#f8fafc").fillColor("#111827");
 
     const colW = pageWidth / 4;

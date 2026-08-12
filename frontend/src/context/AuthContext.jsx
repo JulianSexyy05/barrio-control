@@ -1,11 +1,12 @@
 import { createContext, useState, useEffect, useCallback } from "react";
 import { getStoredUser, getMe, logout as logoutService } from "../services/auth";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(getStoredUser);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => Boolean(localStorage.getItem("token")));
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -21,8 +22,6 @@ export function AuthProvider({ children }) {
           setUser(null);
         })
         .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
     }
   }, []);
 

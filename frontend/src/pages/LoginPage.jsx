@@ -32,7 +32,7 @@ export default function LoginPage() {
   };
 
   return (
-    <AuthLayout title="Iniciar sesión" subtitle="Accede a tu panel de tesorería">
+    <AuthLayout title="Iniciar sesión" subtitle="Accede a tu panel de cuentas">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">

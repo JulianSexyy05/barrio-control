@@ -29,6 +29,27 @@ export async function crear(data) {
   });
 }
 
+export async function obtener(id, usuarioId) {
+  const existente = await prisma.persona.findUnique({
+    where: { id },
+    include: { movimientos: { select: { id: true, fecha: true, tipo: true, concepto: true, valor: true } } },
+  });
+  if (!existente) {
+    const error = new Error("Persona no encontrada.");
+    error.status = 404;
+    error.code = "NOT_FOUND";
+    throw error;
+  }
+  if (existente.usuarioId !== usuarioId) {
+    const error = new Error("No tienes permiso para ver esta persona.");
+    error.status = 403;
+    error.code = "FORBIDDEN";
+    throw error;
+  }
+
+  return existente;
+}
+
 export async function actualizar(id, data, usuarioId) {
   const existente = await prisma.persona.findUnique({ where: { id } });
   if (!existente) {

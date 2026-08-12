@@ -2,34 +2,31 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
-const navItems = [
-  { path: "/dashboard", label: "Dashboard", icon: "📊" },
-  { path: "/movimientos", label: "Movimientos", icon: "📋" },
-  { path: "/reportes", label: "Reportes", icon: "📈" },
-];
-
 export default function DashboardLayout({ children }) {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [installPrompt, setInstallPrompt] = useState(null);
-  const [isInstalled, setIsInstalled] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(() =>
+    window.matchMedia("(display-mode: standalone)").matches
+  );
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+  const navItems = [
+    { path: "/dashboard", label: "Dashboard", icon: "📊" },
+    { path: "/movimientos", label: "Movimientos", icon: "📋" },
+    { path: "/personas", label: "Personas", icon: "👥" },
+    { path: "/reportes", label: "Reportes", icon: "📈" },
+    ...(user?.rol === "ADMIN" ? [{ path: "/usuarios", label: "Usuarios", icon: "🔐" }] : []),
+  ];
 
   useEffect(() => {
-    const ua = navigator.userAgent;
-    setIsIOS(/iphone|ipad|ipod/i.test(ua));
-
     const handler = (e) => {
       e.preventDefault();
       setInstallPrompt(e);
     };
     window.addEventListener("beforeinstallprompt", handler);
-
-    if (window.matchMedia("(display-mode: standalone)").matches) {
-      setIsInstalled(true);
-    }
 
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
@@ -65,7 +62,7 @@ export default function DashboardLayout({ children }) {
       `}>
         <div className="h-16 flex items-center px-6 border-b border-border">
           <Link to="/dashboard" className="text-lg font-bold text-primary">
-            BarrioControl
+            CuentasControl
           </Link>
         </div>
 

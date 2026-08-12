@@ -18,6 +18,16 @@ export async function listar(req, res, next) {
   }
 }
 
+export async function obtener(req, res, next) {
+  try {
+    const { id } = req.params;
+    const movimiento = await movimientoService.obtener(parseInt(id), req.usuario.id);
+    res.json(movimiento);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function crear(req, res, next) {
   try {
     const movimiento = await movimientoService.crear({

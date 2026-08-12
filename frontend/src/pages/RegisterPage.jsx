@@ -5,7 +5,7 @@ import { useAuth } from "../hooks/useAuth";
 import AuthLayout from "../layouts/AuthLayout";
 
 export default function RegisterPage() {
-  const [form, setForm] = useState({ nombre: "", correo: "", password: "", confirm: "", barrio: "" });
+  const [form, setForm] = useState({ nombre: "", correo: "", password: "", confirm: "", cuenta: "" });
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,7 +29,7 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      const data = await register({ nombre: form.nombre, correo: form.correo, password: form.password, barrio: form.barrio || undefined });
+      const data = await register({ nombre: form.nombre, correo: form.correo, password: form.password, cuenta: form.cuenta || undefined });
       setUser(data.usuario);
       navigate("/dashboard");
     } catch (err) {
@@ -40,7 +40,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <AuthLayout title="Crear cuenta" subtitle="Regístrate para gestionar la tesorería">
+    <AuthLayout title="Crear cuenta" subtitle="Regístrate para gestionar tus cuentas">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
@@ -83,10 +83,10 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Barrio / Comunidad</label>
-          <input type="text" value={form.barrio} onChange={(e) => setForm({ ...form, barrio: e.target.value })}
+          <label className="block text-sm font-medium text-gray-700 mb-1">Cuenta</label>
+          <input type="text" value={form.cuenta} onChange={(e) => setForm({ ...form, cuenta: e.target.value })}
             className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-            placeholder="Ej: Barrio Colombia" />
+            placeholder="Ej: Cuenta general" />
         </div>
 
         {error && <p className="text-sm text-danger bg-danger-light px-3 py-2 rounded-lg">{error}</p>}

@@ -11,9 +11,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'icon-192.png', 'icon-512.png'],
       manifest: {
-        name: 'BarrioControl',
-        short_name: 'BarrioControl',
-        description: 'Sistema de gestión de tesorería para juntas de acción comunal',
+        name: 'CuentasControl',
+        short_name: 'CuentasControl',
+        description: 'Sistema genérico de control de cuentas',
         theme_color: '#863bff',
         background_color: '#ffffff',
         display: 'standalone',

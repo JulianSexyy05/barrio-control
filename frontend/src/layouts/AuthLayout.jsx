@@ -6,7 +6,7 @@ export default function AuthLayout({ children, title, subtitle }) {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="text-2xl font-bold text-primary">
-            BarrioControl
+            CuentasControl
           </Link>
         </div>
         <div className="bg-white rounded-2xl shadow-sm border border-border p-8">

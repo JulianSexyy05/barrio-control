@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
+import { useAuth } from "../hooks/useAuth";
 import { listarMovimientos, crearMovimiento, actualizarMovimiento, eliminarMovimiento } from "../services/movimientos";
 import { listarPersonas, crearPersona } from "../services/personas";
 
@@ -24,6 +25,7 @@ const emptyForm = {
 const emptyNewPersona = { nombre: "", casa: "", telefono: "" };
 
 export default function MovimientosPage() {
+  const { user } = useAuth();
   const [movimientos, setMovimientos] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -38,12 +40,15 @@ export default function MovimientosPage() {
   const [newPersona, setNewPersona] = useState(emptyNewPersona);
   const [creatingPersona, setCreatingPersona] = useState(false);
   const limit = 20;
+  const canEdit = user?.rol !== "CONSULTA";
 
   const loadPersonas = useCallback(async () => {
     try {
       const data = await listarPersonas();
       setPersonas(data);
-    } catch {}
+    } catch (err) {
+      console.error("Error loading personas:", err);
+    }
   }, []);
 
   useEffect(() => { loadPersonas(); }, [loadPersonas]);
@@ -223,12 +228,14 @@ export default function MovimientosPage() {
             <h1 className="text-2xl font-semibold text-gray-900">Movimientos</h1>
             <p className="text-sm text-gray-500 mt-1">{total} registros</p>
           </div>
-          <button
-            onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); setShowNewPersona(false); }}
-            className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-dark transition-colors"
-          >
-            {showForm ? "Cancelar" : "+ Nuevo movimiento"}
-          </button>
+          {canEdit && (
+            <button
+              onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); setShowNewPersona(false); }}
+              className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-dark transition-colors"
+            >
+              {showForm ? "Cancelar" : "+ Nuevo movimiento"}
+            </button>
+          )}
         </div>
 
         {showForm && (
@@ -337,14 +344,18 @@ export default function MovimientosPage() {
                       </td>
                       <td className="px-4 py-3 text-right text-gray-600 whitespace-nowrap">{formatCurrency(mov.saldo)}</td>
                       <td className="px-4 py-3 text-center whitespace-nowrap">
-                        <button onClick={() => handleEdit(mov)}
-                          className="text-primary hover:text-primary-dark text-xs font-medium mr-3">
-                          Editar
-                        </button>
-                        <button onClick={() => handleDelete(mov.id)}
-                          className="text-danger hover:text-red-700 text-xs font-medium">
-                          Eliminar
-                        </button>
+                        {canEdit && (
+                          <>
+                            <button onClick={() => handleEdit(mov)}
+                              className="text-primary hover:text-primary-dark text-xs font-medium mr-3">
+                              Editar
+                            </button>
+                            <button onClick={() => handleDelete(mov.id)}
+                              className="text-danger hover:text-red-700 text-xs font-medium">
+                              Eliminar
+                            </button>
+                          </>
+                        )}
                       </td>
                     </tr>
                   ))}

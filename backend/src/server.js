@@ -8,13 +8,13 @@ import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 const app = express();
 
 app.use(cors({
-  origin: [FRONTEND_URL, "https://frontend-ten-ashen-38.vercel.app", "http://192.168.80.18:5173", "http://192.168.80.18:3001"],
+  origin: [FRONTEND_URL, "https://cuentascontrol.vercel.app", "https://frontend-ten-ashen-38.vercel.app", "http://192.168.80.18:5173", "http://192.168.80.18:3001"],
   credentials: true,
 }));
 app.use(express.json({ limit: "1mb" }));
 
 app.get("/api/health", (req, res) => {
-  res.json({ ok: true, service: "barrio-control-backend" });
+  res.json({ ok: true, service: "cuentas-control-backend" });
 });
 
 app.use("/api", routes);
@@ -29,6 +29,6 @@ export default app;
 
 if (process.env.VERCEL !== "1") {
   app.listen(PORT, () => {
-    console.log(`BarrioControl backend running on http://localhost:${PORT}`);
+    console.log(`CuentasControl backend running on http://localhost:${PORT}`);
   });
 }

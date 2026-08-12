@@ -8,7 +8,7 @@ datasource db {
 
 enum Rol {
   ADMIN
-  TESORERO
+  EDITOR
   CONSULTA
 }
 
@@ -22,8 +22,8 @@ model Usuario {
   nombre    String
   correo    String   @unique
   password  String
-  rol       Rol      @default(TESORERO)
-  barrio    String?
+  rol       Rol      @default(EDITOR)
+  cuenta    String?
   creadoEn  DateTime @default(now()) @map("creado_en")
   movimientos Movimiento[]
   personas    Persona[]

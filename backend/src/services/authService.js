@@ -5,8 +5,9 @@ import { JWT_SECRET, JWT_EXPIRES_IN } from "../config/env.js";
 
 const SALT_ROUNDS = 10;
 
-export async function register({ nombre, correo, password, rol, barrio }) {
-  const existente = await prisma.usuario.findUnique({ where: { correo } });
+export async function register({ nombre, correo, password, rol, cuenta }) {
+  const correoNormalizado = correo.toLowerCase().trim();
+  const existente = await prisma.usuario.findUnique({ where: { correo: correoNormalizado } });
   if (existente) {
     const error = new Error("El correo ya está registrado.");
     error.status = 409;
@@ -17,12 +18,18 @@ export async function register({ nombre, correo, password, rol, barrio }) {
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
   const usuario = await prisma.usuario.create({
-    data: { nombre, correo, password: hashedPassword, rol, barrio },
-    select: { id: true, nombre: true, correo: true, rol: true, barrio: true, creadoEn: true },
+    data: {
+      nombre,
+      correo: correoNormalizado,
+      password: hashedPassword,
+      rol: rol || "EDITOR",
+      cuenta,
+    },
+    select: { id: true, nombre: true, correo: true, rol: true, cuenta: true, creadoEn: true },
   });
 
   const token = jwt.sign(
-    { id: usuario.id, nombre: usuario.nombre, correo: usuario.correo, rol: usuario.rol, barrio: usuario.barrio },
+    { id: usuario.id, nombre: usuario.nombre, correo: usuario.correo, rol: usuario.rol, cuenta: usuario.cuenta },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN }
   );
@@ -31,7 +38,7 @@ export async function register({ nombre, correo, password, rol, barrio }) {
 }
 
 export async function login({ correo, password }) {
-  const usuario = await prisma.usuario.findUnique({ where: { correo } });
+  const usuario = await prisma.usuario.findUnique({ where: { correo: correo.toLowerCase().trim() } });
   if (!usuario) {
     const error = new Error("Correo o contraseña incorrectos.");
     error.status = 401;
@@ -48,13 +55,13 @@ export async function login({ correo, password }) {
   }
 
   const token = jwt.sign(
-    { id: usuario.id, nombre: usuario.nombre, correo: usuario.correo, rol: usuario.rol, barrio: usuario.barrio },
+    { id: usuario.id, nombre: usuario.nombre, correo: usuario.correo, rol: usuario.rol, cuenta: usuario.cuenta },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN }
   );
 
   return {
-    usuario: { id: usuario.id, nombre: usuario.nombre, correo: usuario.correo, rol: usuario.rol, barrio: usuario.barrio },
+    usuario: { id: usuario.id, nombre: usuario.nombre, correo: usuario.correo, rol: usuario.rol, cuenta: usuario.cuenta },
     token,
   };
 }

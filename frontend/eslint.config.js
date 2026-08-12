@@ -17,5 +17,11 @@ export default defineConfig([
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+    rules: {
+      // La app usa el patrón estándar de fetch dentro de useEffect (setLoading/setData
+      // en callbacks async). La regla de react-hooks v7 no es flow-aware y marca
+      // falsos positivos en este patrón, por eso se desactiva.
+      "react-hooks/set-state-in-effect": "off",
+    },
   },
 ])

@@ -68,6 +68,27 @@ export async function listar({ usuarioId, tipo, fechaDesde, fechaHasta, search, 
   return { movimientos, total, page, totalPages: Math.ceil(total / limit) };
 }
 
+export async function obtener(id, usuarioId) {
+  const existente = await prisma.movimiento.findUnique({
+    where: { id },
+    include: { persona: { select: { id: true, nombre: true, casa: true, telefono: true } } },
+  });
+  if (!existente) {
+    const error = new Error("Movimiento no encontrado.");
+    error.status = 404;
+    error.code = "NOT_FOUND";
+    throw error;
+  }
+  if (existente.usuarioId !== usuarioId) {
+    const error = new Error("No tienes permiso para ver este movimiento.");
+    error.status = 403;
+    error.code = "FORBIDDEN";
+    throw error;
+  }
+
+  return existente;
+}
+
 export async function crear(data) {
   const { fecha, hora, tipo, concepto, valor, observaciones, personaId, usuarioId } = data;
 

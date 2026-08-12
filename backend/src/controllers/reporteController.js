@@ -6,7 +6,14 @@ export async function descargarPDF(req, res, next) {
 
     const pdf = await generarPDF(req.usuario.id, { fechaDesde, fechaHasta });
 
-    const filename = `reporte-barrio-colombia-${
+    const cuentaSlug = (req.usuario.cuenta || "cuenta")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
+    const filename = `reporte-${cuentaSlug}-${
       fechaDesde && fechaHasta
         ? `${fechaDesde}_a_${fechaHasta}`
         : "todos"
